@@ -1,6 +1,6 @@
 {% extends 'layoutSolicitudes.html' %}
 {% block content %}
-<h1 class="centrar-texto mayusculas">Solicitud de practicas profesionales</h1>
+<h1 class="centrar-texto mayusculas" id="encabezado">Solicitud de practicas profesionales</h1>
 
 <fieldset class="scroll-reveal">
     <legend class="mayusculas">Datos del Solicitante</legend>
@@ -26,25 +26,33 @@
             <input type="text" name="curp" id="curp">
         </div>
         <div class="campo desplazamiento col-3">
-            <label for="edad">Edad:</label>
+            <label for="edad" class="mayusculas">Edad:</label>
             <input type="number" name="edad" id="edad">
         </div>
-        <div class="campo col-3" id="conenedor-campo-sexo">
+        <div class="campo desplazamiento col-3" id="conenedor-campo-sexo">
+            <label for="sexo" class="mayusculas">Sexo</label>
+            <select id="sexo" name="sexo" >
+                <option value="" disabled selected></option>
+                <option>F</option>
+                <option>M</option>
+            </select>
+            <!--
             <p>SEXO:</p>
             <label for="sexo">(F)</label>
             <input type="radio" name="sexo" id="sexo">
             <label for="sexo">(M)</label>
             <input type="radio" name="sexo" id="masculino">
+            -->
         </div>
     </section>
 
     <section class="row">
-        <p class="col-12">DOMICILIO PARTICULAR:</p>
+        <p class="col-12" class="mayusculas">DOMICILIO PARTICULAR:</p>
         <div class="campo desplazamiento col-4">
             <label for="Calle">Calle</label>
             <input type="text" name="Calle" id="calle" >
         </div>
-        <div class="campo desplazamiento col-1">
+        <div class="campo desplazamiento col-2">
             <label for="Num">Núm</label>
             <input type="text" name="Num" id="numero" >
         </div>
@@ -56,7 +64,7 @@
             <label for="CP">C.P.</label>
             <input type="text" name="CP" id="CP" >
         </div>
-        <div class="campo desplazamiento col-3">
+        <div class="campo desplazamiento col-2">
             <label for="Telefono">Télefono</label>
             <input type="text" name="Telefono" id="Telefono" >
         </div>
@@ -64,22 +72,22 @@
 
     <section class="row">
         <div class="campo desplazamiento col-6">
-            <label for="No-Control">No. DE CONTROL</label>
+            <label for="No-Control" class="mayusculas">No. DE CONTROL</label>
             <input type="text" name="No-Control" id="No-Control" >
         </div>
         <div class="campo desplazamiento col-6">
-            <label for="Carrera">CARRERA</label>
+            <label for="Carrera" class="mayusculas">CARRERA</label>
             <input type="text" name="Carrera" id="Carrera" >
         </div>
     </section>
 
     <section class="row">
-        <div class="campo desplazamiento col-6">
+        <div class="campo desplazamiento col-5">
             <label for="Correo-Institucional">CORREO INSTITUCIONAL</label>
             <input type="text" name="Correo-Institucional" id="Correo-Institucional" >
         </div>
-        <div class="campo desplazamiento col-2">
-            <label for="semestre">semestre</label>
+        <div class="campo desplazamiento col-3">
+            <label for="semestre" class="mayusculas">Semestre</label>
             <select name="semestre" id="semestre" >
                 <option value="" disabled selected></option>
                 <option>4°</option>
@@ -88,11 +96,11 @@
             </select>
         </div>
         <div class="campo desplazamiento col-2">
-            <label for="Grupo">Grupo:</label>
-            <input type="text" name="Grupo" id="Grupo" id="Grupo" >
+            <label for="Grupo" class="mayusculas">Grupo</label>
+            <input type="text" name="Grupo" id="Grupo" id="Grupo" class="mayusculas">
         </div>
         <div class="campo desplazamiento col-2">
-            <label for="Turno">Turno</label>
+            <label for="Turno" class="mayusculas">Turno</label>
             <select name="Turno" id="Turno">
                 <option value="" disabled selected></option>
                 <Option>Matutino</Option>
@@ -104,18 +112,18 @@
 <fieldset class="scroll-reveal">
     <legend class="mayusculas">Datos de la institucion donde se prestará su servicio social</legend>
     <section class="un-renglon">
-        <div class="campo">
-                <label for="Institucion" class="mayusculas ">Institucion</label>
-                <input class="" type="text" name="Institucion" name="Institucion" id="Institucion" >
+        <div class="campo row">
+                <label for="Institucion" class="mayusculas">Institucion:</label>
+                <input class="" type="text" name="Institucion"id="Institucion" >
             </div>
         </div>
-        <div class="campo ">
-                <label for="Persona-objetivo" class="mayusculas ">a quien se dirige la carta de presentacion </label>
+        <div class="campo row">
+                <label for="Persona-objetivo" class="mayusculas ">a quien se dirige la carta de presentacion: </label>
                 <input class="" type="text" name="Persona-objetivo" id="Persona-objetivo" >
             </div>
         </div>
-        <div class="campo ">
-                <label for="Cargo" class="mayusculas ">Cargo que desempeña</label>
+        <div class="campo row">
+                <label for="Cargo" class="mayusculas ">Cargo que desempeña:</label>
                 <input class="" type="text" name="Cargo" id="Cargo" >
             </div>
         </div>
@@ -150,13 +158,13 @@
     </section>
 
     <section class="row un-renglon">
-        <p class="col-1">Fechas:</p>
-        <div class="campo col-5">
-            <label for="Inicio" class="mayusculas">Inicio</label>
+        <p class="col-2 texto-derecha campo-solo">Fechas:</p>
+        <div class="campo col-5 fecha">
+            <label for="Inicio" class="mayusculas">Inicio:</label>
             <input type="date" id="Inicio" name="Inicio">
         </div>
-        <div class="campo col-5 ">
-            <label for="Termino" class="mayusculas">Termino</label>
+        <div class="campo col-5 fecha">
+            <label for="Termino" class="mayusculas">Termino:</label>
             <input type="date" id="Termino" name="Termino">
         </div>
     </section>
@@ -164,25 +172,25 @@
 
 <fieldset class="scroll-reveal">
     <legend class="mayusculas">Sobre el Servicio Social</legend>
-    <section class="un-renglon">
-        <div class="campo">
+    <section class="row un-renglon">
+        <div class="campo col-12">
             <label for="Actividades">Actividades a realizar:</label>
             <input type="text" name="Actividades" id="Actividades" id="Institucion" >
         </div>
     </section>
     <section class="row un-renglon">
         <p class="col-4">Recibirá apoyo económico:</p>
-        <div class="campo col-2">
-            <select name="si-recive" id="si-recibe">
-                <option value="" disabled selected></option>
-                <option value="">SI</option>
-                <option value="">NO</option>
-            </select>            
+        <div class="campo-solo col-2">
+            <select name="recibe-apoyo" id="recibe-apoyo" class="w-100">
+                <option>NO</option>
+                <option>SI</option>
+            </select>
         </div>
         <div class="campo col-3">
             <label for="monto">Cantidad</label>
             <input type="number" name="monto" id="monto">
         </div>
+        
     </section>
     
     <!-- NO OLVIDAR OBTENER LA FECHA DE ENTREGA; GENERADA EN EL BACK-END -->

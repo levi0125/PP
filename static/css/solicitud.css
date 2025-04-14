@@ -7,6 +7,9 @@
 h1{
     font-size: min(4vw,5vh);
 }
+#encabezado{
+    background-color:#b9b9b9;
+}
 .body{
     margin:auto;
     width:70vw;
@@ -44,15 +47,20 @@ p{
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    max-height: max-content;
 }
 .row{
     align-items: center;
+    
 }
 
-.campo {
+.campo,.campo-solo {
     display: flex;
     flex-direction: column-reverse;
-    margin: 1% 0% !important;
+    /*margin: 1% 0% !important;*/
+    margin-top:1% !important;
+    margin-bottom:4% !important;
+    align-items: center;
     input, label,select{
         width: 100%;
     }
@@ -63,11 +71,18 @@ p{
 .un-renglon .campo{
     display: grid;
     grid-template-columns: max-content 1fr;
-
+}
+.fecha{
+    input{
+        width: 90%;
+    }
 }
 .desplazamiento{
+    position:relative;
+    /*margin-bottom:4% !important;*/
     label{
-       translate: 0% -100%;
+       position:absolute;
+       /*translate: 0% -100%;*/
        transition: translate 1s;
 
     }
@@ -75,6 +90,10 @@ p{
     input:not(:placeholder-shown) + label {
       scale: .5;
     }
+}
+.desplazado{
+    translate:0% 100%;
+    scale:".8"
 }
 .mayusculas {
     text-transform: uppercase;
@@ -84,6 +103,12 @@ p{
 }
 .centrar-texto{
     text-align: center;
+}
+.texto-derecha{
+    text-align:end;
+}
+.w-100{
+    width:100%;
 }
 @media (orientation: portrait) {
     /* Tus estilos aquí */
