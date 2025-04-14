@@ -74,6 +74,8 @@ create table if not exists detalles_institucion_para_practicas(
     telefono_jefe_inmediato varchar(10),
     foreign key (id_institucion)  references institucion(id_institucion)
 );
+delimiter//
+def 
 
 create  table if not exists solicitud(
 	id_solicitud int primary key auto_increment,
