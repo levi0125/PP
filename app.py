@@ -207,7 +207,7 @@ def solicitarPP():
     cx.execute_query("select nombre from carreras")
     selects["carreras"]=cx.getFetch()
     if(request.method=="GET"):
-        return render_template("solicitudPP.html",datos=None,abrirDicc=busquedaEnDicc,selects=selects)
+        return render_template("solicitudPP.html",datos=None,abrirDicc=busquedaEnDicc,selects=selects,practicas=True)
     msj=""
     # sin :
     #       curp, edad, sexo, correo institucional
@@ -252,7 +252,7 @@ def solicitarPP():
             else:
                 msj="Se envió la solcitud:"+str(id_solicitud)
     
-    return render_template("solicitudPP.html",mensaje=msj,datos=datos,abrirDicc=busquedaEnDicc,selects=selects)
+    return render_template("solicitudPP.html",mensaje=msj,datos=datos,abrirDicc=busquedaEnDicc,selects=selects,practicas=True)
 
 
 @app.route("/documento")
