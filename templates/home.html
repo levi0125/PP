@@ -8,14 +8,22 @@
 </head>
 <body>
     <div class="body">
+        <h1 class="centrar-texto">Bienvenido</h1>
+        
+        <div class="centro">
 
-        <h1>Bienvenido</h1>
-        
-        <!-- <a href="/crearSolicitud">Crear Solicitud</a> -->
-        
-        <a href="/solicitudServicio">Crear Solicitud de Servicio Social</a>
-        <br><a href="/solicitudPracticas">Crear Solicitud de Practicas profesionales</a>
+            <!-- <a href="/crearSolicitud">Crear Solicitud</a> -->
+            
+            <button class="boton" data-href="/solicitudServicio">Crear Solicitud de Servicio Social</button>
+            <button class="boton" data-href="/solicitudPracticas">Crear Solicitud de Practicas profesionales</button>
+        </div>
         
     </div>
+
+    <script>
+        document.querySelectorAll(".boton").forEach(boton=>{
+            boton.addEventListener("click",e=>location.replace(e.target.dataset['href']))
+        })
+    </script>
 </body>
 </html>

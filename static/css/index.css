@@ -3,4 +3,21 @@
     width:80vw;
     border:2px solid black;
     min-height: 96dvh;
+    
+}
+.centro{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 3vh;
+}
+.body .boton{
+    display: block;
+    width:25vw;
+    aspect-ratio: 1;
+    border: 2px solid black;
+    justify-self: center;
+}
+.centrar-texto{
+    text-align: center;
 }
