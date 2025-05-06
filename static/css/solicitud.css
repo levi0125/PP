@@ -36,7 +36,7 @@ legend{
     font-weight: bold;
     font-size: min(3vw,4vh);;
 }
-section,input{
+section,input,textarea{
     font-size:min(2vw,3vh);
 }
 p{
@@ -68,9 +68,16 @@ p{
         text-align: center;
     }
 }
-.un-renglon .campo{
-    display: grid;
-    grid-template-columns: max-content 1fr;
+input,select{
+    height: min(3vw,5.7vh);
+}
+.un-renglon {
+    align-items: center;
+    .campo{
+        display: grid;
+        margin-bottom: 0px !important;
+        grid-template-columns: max-content 1fr;
+    }
 }
 .fecha{
     input{
@@ -109,6 +116,9 @@ p{
 }
 .w-100{
     width:100%;
+}
+.desaparecer{
+    display: none !important;
 }
 @media (orientation: portrait) {
     /* Tus estilos aquí */

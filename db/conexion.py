@@ -23,14 +23,35 @@ class Conexion:
         
         self.makeConexionSQL()
         self.db=database
-
-        self.version=version
+        ejecutar_procedures=False
+        self.version= version
         self.archivoSQL=archivoSQL
         
         self.cursor = self.conn.cursor()
 
+        self.version_tablas=self.getArchivoVersionDB()
+        if (self.version_tablas!=None):
+            vers=self.version_tablas.split(":")
+            if (len(vers)==1):
+                pass
+            elif (vers[1])=="p":
+                print("debe ejecutar procedures")
+                #hay que ejecutar procedures.sql
+                self.version_tablas=(vers[0])
+                ejecutar_procedures=True
 
-        self.conectarDB(self.getArchivoVersionDB())
+        self.conectarDB(version)
+
+        if(ejecutar_procedures):
+            self.execute_query(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '{self.obtenerBD()}'")
+            for procedimiento in self.getFetch():
+                print(procedimiento)
+                self.execute_query("DROP PROCEDURE "+procedimiento[0])
+            self.executeSQLFile("procedures.sql",self.extension)
+    def obtenerBD(self):
+        if(self.extension==None or self.extension=="1"):
+            return self.db
+        return self.db+"_"+self.extension
     
     def getArchivoDir(self,archivo):
         return f'db/{archivo}'
@@ -48,10 +69,10 @@ class Conexion:
     
     def makeConexionSQL(self):
         try:
-            self.conn= pymysql.connect(host='localhost', port=3310 , user='root', password="risemivicio125")
+            self.conn= pymysql.connect(host='localhost', port=3306 , user='root', password="risemivicio125",charset="utf8mb4")
             #    print("Conexion 1")
         except Exception:
-            self.conn= pymysql.connect(host='localhost', port=3310, user='root', password="")
+            self.conn= pymysql.connect(host='localhost', port=3306, user='root', password="",charset="utf8mb4")
             #    print("Conexion 2")
             
     def execute_query(self,query):
@@ -111,13 +132,14 @@ class Conexion:
                 return c
             c+=1
     
-    def executeSQLFile(self,extension):
+    def executeSQLFile(self,archivo,extension):
         self.file=SQLFile()
         #self.print=True
         self.showQuery(False)
 
-        with open(self.getArchivoDir(self.archivoSQL), "r",encoding="utf-8") as archivo:
+        with open(self.getArchivoDir(archivo), "r",encoding="utf-8") as archivo:
             c=0
+            bd=self.obtenerBD()
             #print('EXTENSION:',extension)
             while True:
                 
@@ -130,8 +152,8 @@ class Conexion:
                 for i in self.SqlQueries:
                     #ubicamos la instuccion
                     #print(f'__i={i}')
-                    i=i.lower().replace('database','schema',1)
-                    indexDB=i.lower().find(self.db.lower())
+                    i=i.replace('database','schema',1)
+                    indexDB=i.find(self.obtenerBD())
 
                     # if(extension !=''):
                     #     print(f'{Back.WHITE}EXECUTE SIN PROBLEMAS__{Back.RESET}')
@@ -166,11 +188,12 @@ class Conexion:
                             if(extension==''):
                                 self.execute_query(i)
                             else:
-                                self.execute_query(i.lower().replace(self.db.lower(),f'{self.db}{extension}'))    
+                                self.execute_query(i.replace(self.db,f'{bd}'))    
                 
                 if self.SqlQueries==[''] or self.SqlQueries==[]:
                     #print('PM:{',self.file.primera_mitad,'}')
                     print(f'{Back.RED}FIN DE LA LECTURA{Back.RESET}')
+                    print(self.file.primera_mitad)
                     if(len(self.file.primera_mitad)>1):
                         self.execute_query(self.file.primera_mitad)
                     break
@@ -183,33 +206,34 @@ class Conexion:
         #print(divd)
         c=0
         index=0
+        db=self.obtenerBD()
         queryAdapted=''
         while index < len(divd):
             x=divd[index]
             print(f'{c}:({c+len(x)})')
             queryAdapted+=query[c:(c+len(x))]
             if(index!=len(divd)-1):
-                queryAdapted+=self.db+extension
+                queryAdapted+=db
             c+=len(x)+10
             index+=1
         return queryAdapted
 
     def crear_DB(self,extension):
-        if(extension!=''):
-            extension=f'_{extension}'
-        self.execute_query(f"drop schema if exists {self.db+extension}")
-        #self.execute_query(f"create schema {self.db+extension}")
-        self.execute_query(f"create schema {self.db+extension}")
+        bd=self.obtenerBD()
+        self.execute_query(f"drop schema if exists {bd}")
+        #self.execute_query(f"create schema {bd}")
+        self.execute_query(f"create schema {bd} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;")
 
-        self.execute_query(f"use {self.db+extension}")
+        self.execute_query(f"use {bd}")
         
-
-        self.executeSQLFile(extension)
-
         query='create table version( version int not null);'
         self.execute_query(query)
-        query='insert into version values(%s);'%(self.version)
+        query='insert into version values(%s);'%(self.version_tablas or 1)
         self.execute_query(query)
+
+        self.executeSQLFile(self.archivoSQL,extension)
+
+        
 
     def getFromVersion(self):
         r=self.execute_query('select version from version')
@@ -222,8 +246,7 @@ class Conexion:
         print('conectar')
         use="use "+self.db
         print("extension= ",extension)
-        if extension!='':
-
+        if extension!='1' and extension!=None:
             #no es un nombre unico para una bd, asi que agregemosle el numero de spiderman que somos
             use+=f'_{extension}'
 
@@ -231,16 +254,16 @@ class Conexion:
             print('No existe la db')
             #fallo la conexion a la db
             #no existe
-            if self.getArchivoVersionDB()!=extension:
+            if self.version_tablas!=extension:
                 # la extension/version libre de la db no concuerda con la marcada en el archivo de Version
-
+                
                 self.setNewFileVersion(extension if extension!='' else 1)
-
+            self.extension=extension
             self.crear_DB(extension)
             return 
         #existe la db
         print("EXISTE LA DB")
-
+        return #agregado momentameamente, en lo que vuelvo a reparara el ejecutor sql
         #select a la tabla version en la DB
         ver=self.getFromVersion()
         if ver ==None:
@@ -254,9 +277,10 @@ class Conexion:
                 self.conectarDB(str(int(extension)+1))
             return
         print(f'VERSION ={ver[0]}')
-        print(f'VERSION 2 ={self.version}')
+        print(f'VERSION 2 ={self.version_tablas}')
+        self.extension=extension
 
-        if int(ver[0])!=int(self.version):
+        if int(ver[0])!=int(self.version_tablas):
             print('la db esta desactualizada')
             # el campo version en la DB no concuerda con el que deberia ser
             self.crear_DB(extension)

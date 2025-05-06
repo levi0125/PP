@@ -1,44 +1,201 @@
 {% extends 'layoutSolicitudes.html' %}
 {% block content %}
+<h1 class="centrar-texto mayusculas" id="encabezado">Solicitud de Practicas Profesionales</h1>
 
-<style>
-    .form-group {
-      position: relative;
-      margin-top: 1.5rem;
-    }
-  
-    .form-input {
-      width: 100%;
-      padding: 1rem 0.5rem 0.5rem 0.5rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-  
-    .form-label {
-      position: absolute;
-      top: 0.75rem;
-      left: 0.5rem;
-      color: #888;
-      background-color: white;
-      padding: 0 0.25rem;
-      transition: all 0.2s ease;
-      pointer-events: none;
-    }
-  
-    .form-input:focus + .form-label,
-    .form-input:not(:placeholder-shown) + .form-label {
-      top: -0.6rem;
-      left: 0.4rem;
-      font-size: 0.75rem;
-      color: #007BFF;
-    }
-  
-  </style>
-  
-  <div class="form-group">
-    <input type="text" id="nombre" name="nombre" class="form-input" placeholder=" " required />
-    <label for="nombre" class="form-label">Nombre completo</label>
-  </div>
-  
+<fieldset class="scroll-reveal">
+    <legend class="mayusculas">Datos Personales</legend>
+    <section id="Nombre-de-alumno" class="row">
+      <div class="campo desplazamiento col-4">
+          <label for="Nombres">Nombre(s)</label>
+          <input type="text" name="Nombres" id="Nombres">
+      </div>
+        <div class="campo desplazamiento col-4">
+            <label for="Apellido-paterno">Apellido Paterno</label>
+            <input type="text" name="Apellido-paterno" id="Institucion" id="Apellido-paterno">
+        </div>
+        <div class="campo desplazamiento col-4">
+            <label for="Apellido-materno">Apellido Materno</label>
+            <input type="text" name="Apellido-materno" id="Apellido-materno">
+        </div>
+    </section>
+
+    <section class="row">
+        <p class="col-12" >Domicilio:</p>
+        <div class="campo desplazamiento col-4">
+            <label for="Calle">Calle</label>
+            <input type="text" name="Calle" id="calle" >
+        </div>
+        <div class="campo desplazamiento col-1">
+            <label for="Num">No.</label>
+            <input type="text" name="Num" id="numero" >
+        </div>
+        <div class="campo desplazamiento col-3">
+            <label for="Colonia">Colonia</label>
+            <input type="text" name="Colonia" id="Colonia" >
+        </div>
+        <div class="campo desplazamiento col-2">
+            <label for="CP">C.P.</label>
+            <input type="text" name="CP" id="CP" >
+        </div>
+        <div class="campo desplazamiento col-2">
+            <label for="Telefono">Télefono Cel</label>
+            <input type="text" name="Telefono" id="Telefono" >
+        </div>
+    </section>
+</fieldset>
+<fieldset class="scroll-reveal">
+    <legend class="mayusculas">Datos Escolares</legend>
+    <section class="row">
+        <div class="campo desplazamiento col-3">
+            <label for="No-Control">Numero de Control</label>
+            <input type="text" name="No-Control" id="No-Control" value="2230106155">
+        </div>
+        <div class="campo desplazamiento col-3">
+            <label for="Carrera">Especialidad</label>
+            <select type="text" name="Carrera" id="Carrera" >
+                <option value="" disabled selected></option>
+                {% for s in selects.carreras %}
+                    <option>{{s.0}}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+
+        <div class="campo desplazamiento col-2">
+            <label for="Semestre">Semestre</label>
+            <select name="Semestre" id="Semestre" >
+                <option value="" disabled selected></option>
+                <option>5°</option>
+                <option>6°</option>
+            </select>
+        </div>
+        <div class="campo desplazamiento col-2">
+            <label for="Grupo" class="mayusculas">Grupo</label>
+            <input type="text" name="Grupo" id="Grupo" id="Grupo" class="mayusculas">
+        </div>
+        <div class="campo desplazamiento col-2">
+            <label for="Turno" class="mayusculas">Turno</label>
+            <select name="Turno" id="Turno">
+                <option value="" disabled selected></option>
+                <Option>Matutino</Option>
+                <Option>Vespertino</Option>
+            </select>
+    </section>
+
+    <section class="row un-renglon">
+      <b class="col-12">Periodo de Prácticas Profesionales(tres meses, más un día), acumulando 240 horas:</b>
+      <div class="campo col-6 fecha">
+          <label for="Inicio" class="mayusculas">Inicio:</label>
+          <input type="date" id="Inicio" name="Inicio">
+      </div>
+      <div class="campo col-6 fecha">
+          <label for="Termino" class="mayusculas">Termino:</label>
+          <input type="date" id="Termino" name="Termino">
+      </div>
+  </section>
+</fieldset>
+
+<fieldset class="scroll-reveal">
+    <legend class="mayusculas">Datos de la empresa o institución</legend>
+    <section class="row">
+        <div class="campo desplazamiento col-5">
+          <label for="Institucion">Nombre o razon Social</label>
+          <input type="text" name="Institucion" >
+        </div>
+        <div class="campo desplazamiento col-3">
+          <label for="RFC">R.F.C.</label>
+          <input type="text" name="RFC" id="RFC" >
+        </div>
+        <div class="campo desplazamiento col-4">
+          <label for="Giro">Giro</label>
+          <input  type="text" name="Giro"id="Giro" >
+        </div>
+
+
+
+        <div class="campo desplazamiento col-7">
+            <label for="Persona-objetivo" >Nombre del Represetante Legal</label>
+            <input type="text" name="Persona-objetivo" id="Persona-objetivo" >
+        </div>
+        <div class="campo desplazamiento col-5">
+          <label for="Cargo" >Cargo</label>
+          <input type="text" name="Cargo" id="Cargo" >
+        </div>
+        
+
+
+        <p class="col-12">Domicilio:</p>
+        <div class="campo desplazamiento col-9">
+            <label for="Calle-institucion">Calle</label>
+            <input type="text" name="Calle-institucion" id="Calle-Institucion" >
+        </div>
+        <div class="campo desplazamiento col-3">
+            <label for="Num-institucion">No.</label>
+            <input type="text" name="Num-institucion" id="Num-Institucion" >
+        </div>
+
+        <div class="campo desplazamiento col-5">
+            <label for="Colonia-institucion">Colonia/Fracc</label>
+            <input type="text" name="Colonia-institucion" id="Colonia-Institucion" >
+        </div>
+        <div class="campo desplazamiento col-3">
+            <label for="CP-institucion">C.P.</label>
+            <input type="text" name="CP-institucion" id="CP-Institucion" >
+        </div>
+        <div class="campo desplazamiento col-4">
+            <label for="Telefono-institucion">Télefono</label>
+            <input type="text" name="Telefono-institucion" id="Telefono-Institucion" >
+        </div>        
+
+
+      <div class="campo desplazamiento col-6">
+        <label for="Jefe-inmediato" >Nombre del Jefe Inmediato</label>
+        <input type="text" name="Jefe-inmediato" id="Jefe-inmediato" >
+      </div>
+      <div class="campo desplazamiento col-2">
+        <label for="Tel-j-i">Teléfono</label>
+        <input  type="text" name="Tel-j-i"id="Tel-j-i" >
+      </div>
+      <div class="campo desplazamiento col-4">
+          <label for="Cargo-j-i" >Cargo</label>
+          <input  type="text" name="Cargo-j-i" id="Cargo-j-i" >
+      </div>
+    </section>
+</fieldset>
+
+<fieldset class="scroll-reveal">
+    <legend class="mayusculas">Sobre las practicas</legend>
+
+    <section class="row un-renglon">
+      <div class="campo col-12">
+          <label for="Nombre-proyecto">Nombre del proyecto:</label>
+          <input type="text" name="Nombre-proyecto" id="Nombre-proyecto" >
+      </div>
+    </section>
+    <section class="row un-renglon">
+        <div class="campo col-12">
+            <label for="Actividades">Actividades a realizar:</label>
+            <textarea rows="3" type="text" name="Actividades" id="Actividades" ></textarea>
+        </div>
+    </section>
+
+    <section class="row un-renglon">
+        <div class="campo col-6">
+            <p class="col-auto">Recibirá apoyo económico:</p>
+            <select name="Recibe-apoyo" id="Recibe-apoyo" class="w-100">
+                <option>NO</option>
+                <option>SI</option>
+            </select>
+        </div>
+        <div class="campo col-3 desaparecer" id="contenedor-monto">
+            <label for="Monto">Cantidad:</label>
+            <input type="number" name="Monto" id="Monto">
+        </div>
+        
+    </section>
+    
+    <!-- NO OLVIDAR OBTENER LA FECHA DE ENTREGA; GENERADA EN EL BACK-END -->
+</fieldset>
+
+<script src="/static/js/solicitudSS.js"></script>
 {% endblock %}

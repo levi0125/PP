@@ -1,3 +1,5 @@
+let cont_monto=document.getElementById("contenedor-monto")
+
 document.querySelectorAll(".desplazamiento").forEach(campo=>{
     campo.addEventListener("click",(e,target=e.target)=>{
         console.log(target)
@@ -43,3 +45,13 @@ const observer = new IntersectionObserver((entries) => {
 });
 
 document.querySelectorAll(".scroll-reveal").forEach(el => observer.observe(el));
+
+
+
+document.getElementById("Recibe-apoyo").addEventListener("change",ev=>{
+    if(ev.target.value=="SI"){
+        cont_monto.classList.remove("desaparecer")
+    }else{
+        cont_monto.classList.add("desaparecer")
+    }
+})

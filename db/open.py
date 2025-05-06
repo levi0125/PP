@@ -31,6 +31,7 @@ class SQLFile():
  
     def isLastIncomplete(self):
         if self.bloque[-1:]!="":
+            # print("ultimo esta incompleto")
             #el ultimo split del texto esta lleno, es decir, el bloque no termino en ';'.Por ende,
                 #tomo la mitad de una intruccion que continuara en el siguiente bloque
             self.primera_mitad=self.bloque[-1:][0]
@@ -81,26 +82,36 @@ class SQLFile():
         while(True):
             inst=self.bloque[index]
             #recorremos las instrucciones
-            if(not (self.containsAgroup(inst)==-1 and buscaFin==None)):
+            indxBfin=self.containsAgroup(inst,buscaFin)
+            if(indxBfin!=-1):
                 #o bien encontramos un 'begin' o estamos buscando un 'end'
-
-                if(self.containsAgroup(inst)!=-1):
+                if(buscaFin==None):
+                    # print("inicio del delimiter(",index)
                     #print(f'INICIO DEL BEGIN({index}) :{Back.YELLOW}[__]'+f"{Back.RESET}\n{Back.YELLOW}[...".join(self.bloque)+f'{Back.RESET}..._')
                     #este bloque contiene el inicio de un delimiter
                     buscaFin =index
-                    
-                if(self.containsAgroup(inst,True)!=-1):
+                else:
+                    # print("fin del delimiter(",index)
                     #este bloque contiene el fin de un delimiter 
-                    index-=self.joinBlock(buscaFin,index)
+                    if(self.primera_mitad!=None):
+                        index-=self.joinBlock(0,index)
+                        self.bloque[0]=self.primera_mitad+self.bloque[0]
+                        self.primera_mitad=None
+                    else:
+                        index-=self.joinBlock(buscaFin,index)
                     buscaFin=None
+            else:
+                pass
+                # print("linea ----",index)
             index+=1
             if(index==len(self.bloque)):
                 break                
 
         if (buscaFin!=None):
             #print('NO SE ENCONTRO EL END EN EL BLOQUE')
-            print(f'{Back.GREEN}alv, no esta el bloque end en esta lectura, hay que probar en la siguiente{Back.RESET}')
-            self.joinBlock(buscaFin,index)
+            # print(f'{Back.GREEN}alv, no esta el bloque end en esta lectura, hay que probar en la siguiente{Back.RESET}')
+            # print(self.bloque)
+            self.joinBlock(buscaFin,index-1)
             self.buscaFin= buscaFin
         else:
             self.buscaFin= False
@@ -135,11 +146,11 @@ class SQLFile():
 
     def containsAgroup(self,inst,delimiterFin=None):
         #print("busca :"+"end" if delimiterFin else "begin")
-        return inst.lower().find("end" if delimiterFin!=None else "begin")
+        return inst.lower().find("\nend //" if delimiterFin!=None else "\nbegin\n")
 
     
     def getSQLines(self,archivo):
-        self.buscaFin= None
+        # self.buscaFin= None
         #quitamos los espacios en blanco de mas
         self.bloque= archivo.read(3500).replace('  ',' ')
         #print('Bloque sql:{',self.bloque,'}')
@@ -178,14 +189,23 @@ class SQLFile():
 
         self.isLastIncomplete()
         #print('LAST(TERMINO):{',self.primera_mitad,'}')
+        # print(self.bloque)
+        # print(self.bloque)
         return self.bloque
 
-if(prueba):
+if(__name__=="__main__"):
     bloque=[]
     file=SQLFile()
 
-    archivo =open('DB.sql', "r",encoding="utf-8")
+    archivo =open('db/procedures.sql', "r",encoding="utf-8")
     file.getSQLines(archivo)
+    for blk in file.bloque:
+        print("=======INICIO=======\n",blk,"\n=======FIN=======\n")
     file.getSQLines(archivo)
+    for blk in file.bloque:
+        print("=======INICIO=======\n",blk,"=======FIN=======\n")
+    file.getSQLines(archivo)
+    for blk in file.bloque:
+        print("=======INICIO=======\n",blk,"=======FIN=======\n")
 
         

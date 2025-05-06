@@ -1,53 +1,49 @@
 {% extends 'layoutSolicitudes.html' %}
 {% block content %}
-<h1 class="centrar-texto mayusculas" id="encabezado">Solicitud de practicas profesionales</h1>
+<h1 class="centrar-texto mayusculas" id="encabezado">Solicitud de Servicio Social</h1>
 
 <fieldset class="scroll-reveal">
     <legend class="mayusculas">Datos del Solicitante</legend>
     <section id="Nombre-de-alumno" class="row">
         <p class="mayusculas col-3">Nombre del alumno:</p>
         <div class="campo desplazamiento col-3">
-            <label for="apellido-paterno">Apellido Paterno</label>
-            <input type="text" name="apellido-paterno" id="Institucion" id="apellido-paterno">
+            <label for="Apellido-paterno">Apellido Paterno</label>
+            <input type="text" name="Apellido-paterno" id="Institucion" id="Apellido-paterno">
         </div>
         <div class="campo desplazamiento col-3">
-            <label for="apellido-materno">Apellido Materno</label>
-            <input type="text" name="apellido-materno" id="apellido-materno">
+            <label for="Apellido-materno">Apellido Materno</label>
+            <input type="text" name="Apellido-materno" id="Apellido-materno">
         </div>
         <div class="campo desplazamiento col-3">
-            <label for="nombres">Nombre(s)</label>
-            <input type="text" name="nombres" id="nombres">
+            <label for="Nombres">Nombre(s)</label>
+            <input type="text" name="Nombres" id="Nombres">
         </div>
-    </section>
+    <!-- </section>
 
-    <section class="row" >
+    <section class="row" > -->
         <div class="campo desplazamiento col-6">
-            <label for="curp">CURP:</label>
-            <input type="text" name="curp" id="curp">
+            <label for="Curp">CURP:</label>
+            <input type="text" name="Curp" id="Curp">
         </div>
         <div class="campo desplazamiento col-3">
-            <label for="edad" class="mayusculas">Edad:</label>
-            <input type="number" name="edad" id="edad">
+            <label for="Edad" class="mayusculas">Edad:</label>
+            <input type="number" name="Edad" id="Edad">
         </div>
         <div class="campo desplazamiento col-3" id="conenedor-campo-sexo">
-            <label for="sexo" class="mayusculas">Sexo</label>
-            <select id="sexo" name="sexo" >
+            <label for="Sexo" class="mayusculas">Sexo</label>
+            <select id="Sexo" name="Sexo" >
                 <option value="" disabled selected></option>
-                <option>F</option>
-                <option>M</option>
+                {% for index in range(2) %}
+                    <option>{{ abrirDicc(selects,'sexo')[index][0] }}</option>
+                {% endfor %}
+                <!-- <option>F</option>
+                <option>M</option> -->
             </select>
-            <!--
-            <p>SEXO:</p>
-            <label for="sexo">(F)</label>
-            <input type="radio" name="sexo" id="sexo">
-            <label for="sexo">(M)</label>
-            <input type="radio" name="sexo" id="masculino">
-            -->
         </div>
     </section>
 
     <section class="row">
-        <p class="col-12" class="mayusculas">DOMICILIO PARTICULAR:</p>
+        <p class="col-12" class="mayusculas">Domicilio Particular:</p>
         <div class="campo desplazamiento col-4">
             <label for="Calle">Calle</label>
             <input type="text" name="Calle" id="calle" >
@@ -72,23 +68,28 @@
 
     <section class="row">
         <div class="campo desplazamiento col-6">
-            <label for="No-Control" class="mayusculas">No. DE CONTROL</label>
-            <input type="text" name="No-Control" id="No-Control" >
+            <label for="No-Control" class="mayusculas">No. de Control</label>
+            <input type="text" name="No-Control" id="No-Control" value="2230106155">
         </div>
         <div class="campo desplazamiento col-6">
             <label for="Carrera" class="mayusculas">CARRERA</label>
-            <input type="text" name="Carrera" id="Carrera" >
+            <select type="text" name="Carrera" id="Carrera" >
+                <option value="" disabled selected></option>
+                {% for s in selects.carreras %}
+                    <option>{{s.0}}</option>
+                {% endfor %}
+            </select>
         </div>
-    </section>
+    <!-- </section>
 
-    <section class="row">
+    <section class="row"> -->
         <div class="campo desplazamiento col-5">
             <label for="Correo-Institucional">CORREO INSTITUCIONAL</label>
             <input type="text" name="Correo-Institucional" id="Correo-Institucional" >
         </div>
         <div class="campo desplazamiento col-3">
-            <label for="semestre" class="mayusculas">Semestre</label>
-            <select name="semestre" id="semestre" >
+            <label for="Semestre" class="mayusculas">Semestre</label>
+            <select name="Semestre" id="Semestre" >
                 <option value="" disabled selected></option>
                 <option>4°</option>
                 <option>5°</option>
@@ -113,19 +114,16 @@
     <legend class="mayusculas">Datos de la institucion donde se prestará su servicio social</legend>
     <section class="un-renglon">
         <div class="campo row">
-                <label for="Institucion" class="mayusculas">Institucion:</label>
-                <input class="" type="text" name="Institucion"id="Institucion" >
-            </div>
+            <label for="Institucion" class="mayusculas">Institucion:</label>
+            <input value="{{ abrirDicc(datos,'institucion.datos.Institucion') }}" type="text" name="Institucion"id="Institucion" >
         </div>
         <div class="campo row">
-                <label for="Persona-objetivo" class="mayusculas ">a quien se dirige la carta de presentacion: </label>
-                <input class="" type="text" name="Persona-objetivo" id="Persona-objetivo" >
-            </div>
+            <label for="Persona-objetivo" class="mayusculas ">a quien se dirige la carta de presentacion: </label>
+            <input value="{{ abrirDicc(datos,'institucion.datos.Persona-objetivo') }}" type="text" name="Persona-objetivo" id="Persona-objetivo" >        
         </div>
         <div class="campo row">
-                <label for="Cargo" class="mayusculas ">Cargo que desempeña:</label>
-                <input class="" type="text" name="Cargo" id="Cargo" >
-            </div>
+            <label for="Cargo" class="mayusculas ">Cargo que desempeña:</label>
+            <input value="{{ abrirDicc(datos,'institucion.datos.Cargo') }}" type="text" name="Cargo" id="Cargo" >    
         </div>
     </section>
 
@@ -175,20 +173,21 @@
     <section class="row un-renglon">
         <div class="campo col-12">
             <label for="Actividades">Actividades a realizar:</label>
-            <input type="text" name="Actividades" id="Actividades" id="Institucion" >
+            <!-- <input type="text" name="Actividades" id="Actividades" id="Institucion" > -->
+            <textarea rows="3" type="text" name="Actividades" id="Actividades" ></textarea>
         </div>
     </section>
     <section class="row un-renglon">
-        <p class="col-4">Recibirá apoyo económico:</p>
-        <div class="campo-solo col-2">
-            <select name="recibe-apoyo" id="recibe-apoyo" class="w-100">
+        <div class="campo col-6">
+            <p class="col-auto">Recibirá apoyo económico:</p>
+            <select name="Recibe-apoyo" id="Recibe-apoyo" class="w-100">
                 <option>NO</option>
                 <option>SI</option>
             </select>
         </div>
-        <div class="campo col-3">
-            <label for="monto">Cantidad</label>
-            <input type="number" name="monto" id="monto">
+        <div class="campo col-3 desaparecer" id="contenedor-monto">
+            <label for="Monto">Cantidad:</label>
+            <input type="number" name="Monto" id="Monto">
         </div>
         
     </section>
