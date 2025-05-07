@@ -1,29 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="/static/css/index.css">
-</head>
-<body>
-    <div class="body">
-        <h1 class="centrar-texto">Bienvenido</h1>
-        
-        <div class="centro">
+{% extends 'layout.html' %}
 
-            <!-- <a href="/crearSolicitud">Crear Solicitud</a> -->
-            
-            <button class="boton" data-href="/solicitudServicio">Crear Solicitud de Servicio Social</button>
-            <button class="boton" data-href="/solicitudPracticas">Crear Solicitud de Practicas profesionales</button>
-        </div>
+{% block content %}
+<link rel="stylesheet" href="/static/css/index.css">
+<div class="body">
+    <h1 class="centrar-texto">Bienvenido</h1>
+    
+    <div class="centro">
+
+        <!-- <a href="/crearSolicitud">Crear Solicitud</a> -->
         
+        <button class="boton btn-dinamico" data-href="/solicitudServicio">Crear Solicitud de Servicio Social</button>
+        <button class="boton btn-dinamico" data-href="/solicitudPracticas">Crear Solicitud de Practicas profesionales</button>
+
+        <button class="boton btn-dinamico" data-href="/solicitudes">Ver registros</button>
     </div>
+    
+</div>
 
-    <script>
-        document.querySelectorAll(".boton").forEach(boton=>{
-            boton.addEventListener("click",e=>location.replace(e.target.dataset['href']))
-        })
-    </script>
-</body>
-</html>
+
+<script src="/static/js/boton_dinamico.js"></script>
+{% endblock %}

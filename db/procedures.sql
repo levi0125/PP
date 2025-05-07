@@ -175,6 +175,7 @@ begin
 
         if(out_id_solicitud is not null) then
             # ya habia hecho una solicitud del mismo tipo
+            set out_id_solicitud=-1;
             leave etiqueta;
         end if;
 
@@ -186,26 +187,28 @@ begin
 		set @in_carrera = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Carrera"));
 		set @in_semestre = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Semestre"));
 		set @in_grupo = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Grupo"));
-		set @in_turno = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Turno"));
+		-- set @in_turno = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Turno"));
 		set @in_telefono = JSON_UNQUOTE(JSON_EXTRACT(@datos_solicitante_json,"$.datos.Telefono"));
 		set @in_inicio = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Inicio"));
 		set @in_termino = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Termino"));
 		set @in_actividades = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Actividades"));
 		set @in_apoyo = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Recibe_apoyo"));
-		set @in_monto = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Monto")));    
-		select 'marca';
-		set @id_turno= (select id_turno from turno where turno=@in_turno);
-		set @tiene_apoyo=0;
+		set @in_monto = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Monto")));
+        set @in_fecha_entrega= nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Fecha_entrega")));
+
+		set @id_turno= (select id_turno from turno where turno=(JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Turno"))) );
 		set @in_nom_proy = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Nombre_proyecto")));
 		set @in_edad = nullificar(JSON_UNQUOTE(JSON_EXTRACT(@datos_solicitante_json,"$.datos.Edad")));
-		select 'antes del apoyo';
+		
+        set @tiene_apoyo=0;
+
 		if(@in_apoyo="SI") then 
 			set @tiene_apoyo=1;
 		end if;
-		select 'finales';
+
 		select @out_id_solicitante,@id_tipo_s,@id_dom_solicitante, @in_telefono, @in_carrera, @in_semestre, @in_grupo,
 			@id_turno, @id_institucion, @in_inicio, @in_termino, @in_actividades, @tiene_apoyo,
-			@in_monto, NOW(), 0,@in_nom_proy,@in_edad;
+			@in_monto, @in_fecha_entrega, @in_nom_proy,@in_edad;
 		insert into solicitud(
 			id_solicitante,tipo_solicitud,id_domicilio_solicitante,telefono_solicitante,id_carrera,semestre,grupo,id_turno,
 			id_institucion,fecha_inicio,fecha_termino,actividades,tiene_apoyo_economico,
@@ -215,7 +218,7 @@ begin
 		) values(
 			@out_id_solicitante,@id_tipo_s,@id_dom_solicitante, @in_telefono, (select id_carrera from carreras where nombre=@in_carrera), @in_semestre, @in_grupo,
 			@id_turno, @out_id_institucion, @in_inicio, @in_termino, @in_actividades, @tiene_apoyo,
-			@in_monto, NOW(), 0,
+			@in_monto, @in_fecha_entrega, 0,
 
 			@in_nom_proy,@in_edad
 		);

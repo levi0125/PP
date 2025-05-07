@@ -75,7 +75,7 @@ class Conexion:
             self.conn= pymysql.connect(host='localhost', port=3306, user='root', password="",charset="utf8mb4")
             #    print("Conexion 2")
             
-    def execute_query(self,query):
+    def execute_query(self,query,args=None):
         try:
             #print(Back.MAGENTA+query+Back.RESET)
             if( self.print):
@@ -83,7 +83,7 @@ class Conexion:
             else:
                 print(query[:50])
             ##Ejecuta la consulta
-            self.cursor.execute(query)
+            self.cursor.execute(query,(None if args==None else args) )
             #continua si la expresion es posible
             
             #detecta la instruccion principal de la consulta
@@ -106,6 +106,7 @@ class Conexion:
             return -1
     
     def callProcedure(self,procedureName,parametersTuple=None,returnFetch=False):
+        print(f"{Back.LIGHTMAGENTA_EX}invocando el procedimiento {procedureName}{Back.RESET}")
         try:
             if parametersTuple!=None: 
                 self.cursor.callproc(procedureName,parametersTuple)            
@@ -302,4 +303,6 @@ class Conexion:
         self.print=booleano
 
 if(__name__=="__main__"):
-    cx=Conexion('SSPP','','DB.sql')
+    cx=Conexion('SSPP','1','DB.sql')
+    # datos='{"institucion": {"datos": {"Institucion": "HOSPITAL TERCER MILENIO", "Persona_objetivo": "ALGUIEN", "Cargo": "DIRECTORA GENERAL", "RFC": "CC389ASSC", "Telefono": "444912839"}, "domicilio": {"Calle": "ALSDMA", "Num": "123", "Colonia": "MKMLADSM S", "CP": "2033"}, "otros-detalles": {"Giro": "SERVICIOS", "Jefe_inmediato": "HERNANDEZ HERNANDEZ", "Tel_j_i": "44912892039", "Cargo_j_i": "JEFE DE SERVICIO AL CLIENTE"}}, "solicitante": {"datos": {"Apellido_paterno": "AGUILAR", "Apellido_materno": "MARTIN", "Nombres": "PEREZ", "Sexo": null, "No_Control": "22301061551234", "Edad": null, "Curp": null, "Correo_Institucional": null, "Telefono": "4498889999"}, "domicilio": {"Calle": "UNA CALLE", "Num": "15", "Colonia": "GRANADITAS", "CP": "30456"}}, "solicitud": {"datos": {"Carrera": "SOPORTE Y MANTENIMIENTO DE EQUIPO DE COMPUTO", "Semestre": "6", "Grupo": "A", "Turno": "Vespertino", "Fecha_entrega": null, "Inicio": "2025-09-03", "Termino": "2025-10-09", "Actividades": "VIGILANCIA", "Recibe_apoyo": "NO", "Monto": null, "Nombre_proyecto": "VIGILANCIA SUPREMA"}}}'
+    # cx.callProcedure("hacerSolicitud",(datos,"Servicio Social","@id_solic"))

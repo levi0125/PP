@@ -146,6 +146,7 @@ def crearJSONpDatos(request):
             "Semestre":getFormField(request,"Semestre",missing_data).replace("°",""),
             "Grupo":getFormField(request,"Grupo",missing_data),
             "Turno":getFormField(request,"Turno",missing_data,"Capital"),
+            "Fecha_entrega":getFormField(request,"Fecha-entrega",missing_data),
 
             "Inicio":getFormField(request,"Inicio",missing_data),
             "Termino":getFormField(request,"Termino",missing_data),
@@ -175,16 +176,17 @@ def solicitarSS():
         msj="Debes llenar todos los campos("+str(missing_data)+")"
         print(missing_data)
     else:
-        print(datos)
         print("json=",json.dumps(datos))
         id_solicitud=cx.callProcedure("hacerSolicitud",(json.dumps(datos),"Servicio Social","@id_solic"))
         if(isinstance(id_solicitud, BaseException)):
             #nos devolvió una excepcion
             msj="Excepcion:"+str(id_solicitud)
         else:
+            print("pre id soli:",id_solicitud)
             cx.execute_query("select @id_solic")
             id_solicitud=cx.getFetch()[0][0]
-            if(id_solicitud==None):
+            print("id soli:",id_solicitud)
+            if(id_solicitud==None or id_solicitud=="-1"):
                 msj="No puedes enviar mas de una solicitud del mismo tipo"
             else:
                 msj="Se envió la solcitud:"+str(id_solicitud)
@@ -238,7 +240,6 @@ def solicitarPP():
                 msj="Debes llenar todos los campos"
                 print(missing_data)
         if(msj==""):
-            print(datos)
             print("json=",json.dumps(datos))
             id_solicitud=cx.callProcedure("hacerSolicitud",(json.dumps(datos),"Practicas Profesionales","@id_solic"),True)
             if(isinstance(id_solicitud, BaseException)):
@@ -254,6 +255,33 @@ def solicitarPP():
     
     return render_template("solicitudPP.html",mensaje=msj,datos=datos,abrirDicc=busquedaEnDicc,selects=selects,practicas=True)
 
+@app.route("/solicitudes")
+def listarSolicitudes():
+    cx.execute_query("""select 
+	s.id_solicitud,ste.nombres,ste.apellidoPaterno,ste.apellidoMaterno,ste.num_de_control,t.tipo,s.fecha_entrega_solicitud
+FROM solicitud s
+    LEFT JOIN solicitante ste ON ste.id_solicitante = s.id_solicitante 
+    LEFT JOIN tipoSolicitud t on t.id_tipo=s.tipo_solicitud
+order by apellidoPaterno""")
+    solicitudes=cx.getFetch()
+
+    return render_template("solicitudes.html",solicitudes=solicitudes)
+
+@app.route("/solicitud:<int:id>")
+def obtener_solicitud(id):
+    cx.execute_query("""SELECT 
+    s.id_solicitud, s.tipo_solicitud, ste.*, s.telefono_solicitante, edad_solicitante, c.nombre,
+    s.semestre, grupo, t.turno, s.fecha_inicio, s.fecha_termino, s.actividades,
+    tiene_apoyo_economico, monto_apoyo_economico, fecha_entrega_solicitud, nombre_proyecto,
+    i.*
+FROM solicitud s
+    LEFT JOIN solicitante ste ON ste.id_solicitante = s.id_solicitante
+    LEFT JOIN domicilio d ON d.id_domicilio = s.id_domicilio_solicitante
+    LEFT JOIN turno t ON t.id_turno = s.id_turno
+    LEFT JOIN carreras c ON c.id_carrera = s.id_carrera
+    LEFT JOIN institucion i ON i.id_institucion = s.id_institucion where s.id_solicitud=%s""",(id))
+
+    return str(cx.getFetch()[0])
 
 @app.route("/documento")
 def generar_documento():
