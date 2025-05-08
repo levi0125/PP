@@ -1,18 +1,4 @@
 DELIMITER //
-
-CREATE FUNCTION nullificar(dato varchar(100))
-RETURNS varchar(100)
-DETERMINISTIC -- o NO DETERMINISTIC si puede variar el resultado
-BEGIN
-    if(dato="null") then
-		return null;
-    end if;
-    return dato;
-END //
-DELIMITER ;
-
-
-DELIMITER //
 create procedure insertarDomicilio(
     in datos_domicilio JSON,
     out out_id_domicilio int
@@ -20,11 +6,11 @@ create procedure insertarDomicilio(
 begin
 	select datos_domicilio as 'JSON del domicilio';
 
-    set @in_calle = JSON_UNQUOTE(JSON_EXTRACT(datos_domicilio, '$.Calle'));
-    set @in_num_calle = JSON_UNQUOTE(JSON_EXTRACT(datos_domicilio, '$.Num'));
-    set @in_colonia = JSON_UNQUOTE(JSON_EXTRACT(datos_domicilio, '$.Colonia'));
-    set @in_codigo_postal = JSON_UNQUOTE(JSON_EXTRACT(datos_domicilio, '$.CP'));   
-    
+    set @in_calle = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_domicilio, '$.Calle')));
+    set @in_num_calle = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_domicilio, '$.Num')));
+    set @in_colonia = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_domicilio, '$.Colonia')));
+    set @in_codigo_postal = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_domicilio, '$.CP')));
+
 	select @in_calle,@in_num_calle,@in_colonia,@in_codigo_postal;
     
 	etiqueta: begin
@@ -35,15 +21,15 @@ begin
 		select 'averiguando del domicilio 2';
         if(out_id_domicilio is not null) then
             # ya existe el domicilio
-            leave etiqueta;
             select 'ya existe el dom';
+            leave etiqueta;
         end if;
 
 		insert into domicilio(
         calle,num_calle,colonia,codigo_postal) values(
             @in_calle,@in_num_calle,@in_colonia,@in_codigo_postal
         );
-        
+        select 'domicilio insertado';
         set out_id_domicilio=(select last_insert_id());
 
 	end etiqueta;
@@ -58,12 +44,12 @@ create procedure insertarInstitucion(
 	)
 begin
 	select datos_inst as 'JSON institucion';
-    set @in_nombre=JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.datos.Institucion'));
-    set @in_rep_legal=JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.datos.Persona_objetivo'));
-    set @in_cargo=JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.datos.Cargo'));
+    set @in_nombre=nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.datos.Institucion')));
+    set @in_rep_legal=nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.datos.Persona_objetivo')));
+    set @in_cargo=nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.datos.Cargo')));
     
-    set @in_rfc=JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.datos.RFC'));
-    set @in_telefono = JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.datos.Telefono'));
+    set @in_rfc=nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.datos.RFC')));
+    set @in_telefono = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.datos.Telefono')));
     
     set @domicilio=JSON_EXTRACT(datos_inst, '$.domicilio');
     set @id_dom = 0;
@@ -85,10 +71,10 @@ begin
         end if;
 
         if(para_practicas) then
-            set @in_giro =JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.otros_detalles.Giro'));
-            set @in_jefe_inmediato =JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.otros_detalles.Jefe_inmediato'));
-            set @in_tel =JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.otros_detalles.Tel_j_i'));
-            set @in_cargo =JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.otros_detalles.Cargo_j_i'));
+            set @in_giro =nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.otros_detalles.Giro')));
+            set @in_jefe_inmediato =nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.otros_detalles.Jefe_inmediato')));
+            set @in_tel =nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.otros_detalles.Tel_j_i')));
+            set @in_cargo =nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.otros_detalles.Cargo_j_i')));
         
             update institucion set giro=@in_giro where id_institucion=@out_id_institucion;
 
@@ -111,42 +97,37 @@ create procedure insertarSolicitante(
 )
 begin
 	select datos_solicitante as 'JSON solicitante';
-    set @in_num_de_control = JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.No_Control'));
-    
+    select JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.No_Control'));
+    set @in_num_de_control = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.No_Control')));
+    select 'ppaso el n control';
     etiqueta: begin
         set out_id_solicitante = (select id_solicitante from solicitante where num_de_control=@in_num_de_control);
-        call insertarDomicilio( JSON_EXTRACT(datos_solicitante,"$.domicilio") , id_domicilio);
+        call insertarDomicilio( JSON_EXTRACT(datos_solicitante,'$.domicilio') , id_domicilio);
         if(out_id_solicitante is not null) then 
-            # ya existe solicitante
+            select 'ya existe solicitante';
             leave etiqueta;
         end if;
         
-        set @in_apellidoPaterno = JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,"$.datos.Apellido_paterno"));
-        set @in_apellidoMaterno = JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,"$.datos.Apellido_materno"));
-        set @in_nombres = JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,"$.datos.Nombres"));
-        set @in_sexo = JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,"$.datos.Sexo"));
-        set @in_id_sexo = 1;
-
-        set @in_curp = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,"$.datos.Curp")));
-        set @in_correo = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,"$.datos.Correo_Institucional")));
-		
+        set @in_apellido_paterno = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Apellido_paterno')));
+        set @in_apellido_materno = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Apellido_materno')));
+        set @in_nombres = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Nombres')));
         
-        if(@in_sexo = "F") then 
-            # es mujer
-            set @in_id_sexo=2;
-        else if (@in_sexo is null ) then 
+        set @in_curp = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Curp')));
+        set @in_correo = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Correo_Institucional')));
+		
+        set @in_id_sexo=(select id_sexo from sexo where sexo= nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Sexo'))) );
+        if (@in_id_sexo is null ) then 
             set @in_id_sexo=3;
-        end if;
 		end if;
         
         insert into solicitante(
-            apellidoPaterno,apellidoMaterno,nombres,
+            apellido_paterno,apellido_materno,nombres,
             num_de_control,id_sexo,
 
             curp,correo_institucional
             )
             values(
-                @in_apellidoPaterno,@in_apellidoMaterno,@in_nombres,
+                @in_apellido_paterno,@in_apellido_materno,@in_nombres,
                 @in_num_de_control,@in_id_sexo,
                 
                 @in_curp,@in_correo
@@ -168,41 +149,45 @@ begin
     set @id_tipo_s =null,out_id_solicitud=null;
     etiqueta: begin
         set @id_tipo_s= (select id_tipo from tipoSolicitud where tipo=in_tipo_solicitud);
-
+		
+        select 'vas a insertar solic';
         call insertarSolicitante(@datos_solicitante_json,@out_id_solicitante,@id_dom_solicitante);
+        select 'solic ins(hacer solicitud';
         set out_id_solicitud= (select id_solicitud from solicitud where 
             id_solicitante=@out_id_solicitante and tipo_solicitud=@id_tipo_s);
 
         if(out_id_solicitud is not null) then
             # ya habia hecho una solicitud del mismo tipo
+            select 'ya habias hecho una solicitud';
             set out_id_solicitud=-1;
             leave etiqueta;
         end if;
 
-        -- ("Curp","Edad","Sexo","Correo_Institucional")
+        -- ('Curp','Edad','Sexo','Correo_Institucional')
 
 		set @datos_institucion_json = JSON_EXTRACT(datos,'$.institucion');
+        
 		call insertarInstitucion(@datos_institucion_json,@id_tipo_s-1,@out_id_institucion);
 		
-		set @in_carrera = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Carrera"));
-		set @in_semestre = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Semestre"));
-		set @in_grupo = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Grupo"));
-		-- set @in_turno = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Turno"));
-		set @in_telefono = JSON_UNQUOTE(JSON_EXTRACT(@datos_solicitante_json,"$.datos.Telefono"));
-		set @in_inicio = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Inicio"));
-		set @in_termino = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Termino"));
-		set @in_actividades = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Actividades"));
-		set @in_apoyo = JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Recibe_apoyo"));
-		set @in_monto = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Monto")));
-        set @in_fecha_entrega= nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Fecha_entrega")));
+		set @in_carrera = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Carrera')));
+		set @in_semestre = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Semestre')));
+		set @in_grupo = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Grupo')));
+		-- set @in_turno = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Turno'));
+		set @in_telefono = nullificar(JSON_UNQUOTE(JSON_EXTRACT(@datos_solicitante_json,'$.datos.Telefono')));
+		set @in_inicio = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Inicio')));
+		set @in_termino = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Termino')));
+		set @in_actividades = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Actividades')));
+		set @in_apoyo = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Recibe_apoyo')));
+		set @in_monto = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Monto')));
+        set @in_fecha_entrega= nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Fecha_entrega')));
 
-		set @id_turno= (select id_turno from turno where turno=(JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Turno"))) );
-		set @in_nom_proy = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,"$.solicitud.datos.Nombre_proyecto")));
-		set @in_edad = nullificar(JSON_UNQUOTE(JSON_EXTRACT(@datos_solicitante_json,"$.datos.Edad")));
+		set @id_turno= (select id_turno from turno where turno=(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Turno'))) );
+		set @in_nom_proy = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Nombre_proyecto')));
+		set @in_edad = nullificar(JSON_UNQUOTE(JSON_EXTRACT(@datos_solicitante_json,'$.datos.Edad')));
 		
         set @tiene_apoyo=0;
 
-		if(@in_apoyo="SI") then 
+		if(@in_apoyo='SI') then 
 			set @tiene_apoyo=1;
 		end if;
 
@@ -225,4 +210,18 @@ begin
 		set out_id_solicitud=(select last_insert_id());
     end etiqueta;
 end //
+DELIMITER ;
+
+
+DELIMITER //
+
+CREATE FUNCTION nullificar(dato varchar(100))
+RETURNS varchar(100)
+DETERMINISTIC -- o NO DETERMINISTIC si puede variar el resultado
+BEGIN
+    if(dato='null') then
+		return null;
+    end if;
+    return dato;
+END //
 DELIMITER ;

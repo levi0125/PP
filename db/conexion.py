@@ -1,4 +1,5 @@
 import pymysql
+import os
 from colorama import init, Fore, Back, Style
 if(__name__=="__main__"):
     from open import SQLFile
@@ -69,10 +70,16 @@ class Conexion:
     
     def makeConexionSQL(self):
         try:
-            self.conn= pymysql.connect(host='localhost', port=3306 , user='root', password="risemivicio125",charset="utf8mb4")
+            self.conn= pymysql.connect(
+                host=os.getenv("HOST"),
+                port=int(os.getenv("PORT")),
+                user=os.getenv("USER"),
+                password=os.getenv("PASSWORD"),
+                charset=os.getenv("CHARSET"))
+            print("se logró conectar")
             #    print("Conexion 1")
-        except Exception:
-            self.conn= pymysql.connect(host='localhost', port=3306, user='root', password="",charset="utf8mb4")
+        except Exception as ex:
+            print("FAlla:",ex)
             #    print("Conexion 2")
             
     def execute_query(self,query,args=None):
@@ -83,7 +90,8 @@ class Conexion:
             else:
                 print(query[:50])
             ##Ejecuta la consulta
-            self.cursor.execute(query,(None if args==None else args) )
+            print("rgs=",query,args )
+            self.cursor.execute(query,args )
             #continua si la expresion es posible
             
             #detecta la instruccion principal de la consulta
@@ -105,21 +113,19 @@ class Conexion:
             print()
             return -1
     
-    def callProcedure(self,procedureName,parametersTuple=None,returnFetch=False):
+    def callProcedure(self,procedureName,parametersTuple=None,parameterHandler=None):
         print(f"{Back.LIGHTMAGENTA_EX}invocando el procedimiento {procedureName}{Back.RESET}")
         try:
-            if parametersTuple!=None: 
-                self.cursor.callproc(procedureName,parametersTuple)            
-            else:
-                self.cursor.callproc(procedureName)
+            query="call %s(%s)"%(procedureName,parameterHandler)
+            print("query=",query)
+            print("oaran=",parametersTuple)
+            print("===",query%(parametersTuple))
+            self.execute_query(query%(parametersTuple))
             self.conn.commit()
 
         except Exception as e:
             print(e)
             return e
-        
-        if (returnFetch):
-            return self.cursor.fetchall()
     
     def detectar_Instruccion(self,query):
         #    print("  __det consult")

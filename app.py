@@ -6,10 +6,12 @@ import io
 #pip install python-docx
 cx=None
 app = Flask(__name__)
-cx=Conexion('SSPP','1','DB.sql')
 # call hacerSolicitud(
 # 	'{"institucion": {"datos": {"Institucion": "CENTRO DE ESTUDIOS TECNOLOFIOCOS INDUSTRIAL Y DE SERVICIOS NO 155", "Persona_objetivo": "AMIRA", "Cargo": "DIRECTORA", "RFC": null, "Telefono": "4496368159"}, "domicilio": {"Calle": "AV PERSEO", "Num": "99", "Colonia": "PRIMO VERDAD", "CP": "20130"}}, "solicitante": {"datos": {"Apellido_paterno": "PEREZ", "Apellido_materno": "BERNAL", "Nombres": "MARTIN ALEJANDRO", "Sexo": null, "No_Control": "22301061550038", "Edad": null, "Curp": null, "Correo_Institucional": null, "Telefono": "4491261629"}, "domicilio": {"Calle": "ALBINO GARCIA", "Num": "110", "Colonia": "MORELOS I", "CP": "20298"}}, "solicitud": {"datos": {"Carrera": "PROGRAMACION", "Semestre": "6", "Grupo": "A", "Turno": "Matutino", "Inicio": "2025-08-04", "Termino": "2025-09-07", "Actividades": "GENERAR UNA PLANTILLA PARA AUTOMATIZAR EL TRAMITE DE SS Y PP", "Recibe_apoyo": "NO", "Monto": null}}}'
 #     ,"Servicio Social",@id_s);
+def conectarBD():
+    return Conexion('SSPP','1','DB.sql')
+
 @app.route('/')
 def home():
     # datos={
@@ -66,6 +68,17 @@ def home():
     # }
     # print(json.dumps(datos))
     # cx.callProcedure("hacerSolicitud",(json.dumps(datos),"Servicio Social","@id_mi_solicitud"))
+
+    cx=conectarBD()
+    
+    cx.callProcedure("prueba",(35,20,"@res"),("%s,%s,%s"))
+    cx.execute_query("select @res")
+    suma=cx.getFetch()
+    # cx.execute_query("call prueba(10,34,@res)")
+    # cx.execute_query("select @res")
+    # suma=cx.getFetch()[0][0]
+    # cx.execute_query("select @res")
+    print("--------------------->RESULT=",suma)
 
     return render_template("home.html")
 
@@ -130,7 +143,7 @@ def crearJSONpDatos(request):
                 
             "Edad":getFormField(request,"Edad",missing_data),
             "Curp":getFormField(request,"Curp",missing_data),
-            "Correo_Institucional":getFormField(request,"Correo-Institucional",missing_data),
+            "Correo_Institucional":getFormField(request,"Correo-Institucional",missing_data,"Minus"),
             "Telefono":getFormField(request,"Telefono",missing_data)
             },
             "domicilio":{
@@ -159,6 +172,8 @@ def crearJSONpDatos(request):
 
 @app.route("/solicitudServicio", methods=['POST','GET'])
 def solicitarSS():
+    cx=conectarBD()
+
     selects={}
     cx.execute_query("select sexo from sexo")
     selects["sexo"]=cx.getFetch()
@@ -166,7 +181,9 @@ def solicitarSS():
     selects["carreras"]=cx.getFetch()
     
     if(request.method=="GET"):
+        cx.close()
         return render_template("solicitudSS.html",datos=None,abrirDicc=busquedaEnDicc,selects=selects)
+    
     msj=""
     datos,missing_data=crearJSONpDatos(request)
 
@@ -182,15 +199,16 @@ def solicitarSS():
             #nos devolvió una excepcion
             msj="Excepcion:"+str(id_solicitud)
         else:
-            print("pre id soli:",id_solicitud)
             cx.execute_query("select @id_solic")
-            id_solicitud=cx.getFetch()[0][0]
+            id_solicitud=cx.getFetch()
+            print("____id_solicitud=",id_solicitud)
+            id_solicitud=[0][0]
             print("id soli:",id_solicitud)
             if(id_solicitud==None or id_solicitud=="-1"):
                 msj="No puedes enviar mas de una solicitud del mismo tipo"
             else:
                 msj="Se envió la solcitud:"+str(id_solicitud)
-
+    cx.close()
     return render_template("solicitudSS.html",mensaje=msj,**datos,abrirDicc=busquedaEnDicc,selects=selects)
     
     # campos="Apellido-paterno,Apellido-materno,nombres,curp,edad,sexo," \
@@ -203,12 +221,15 @@ def solicitarSS():
 
 @app.route("/solicitudPracticas",methods=['POST','GET'])
 def solicitarPP():
+    cx=conectarBD()
+
     selects={}
     cx.execute_query("select sexo from sexo")
     selects["sexo"]=cx.getFetch()
     cx.execute_query("select nombre from carreras")
     selects["carreras"]=cx.getFetch()
     if(request.method=="GET"):
+        cx.clsoe()
         return render_template("solicitudPP.html",datos=None,abrirDicc=busquedaEnDicc,selects=selects,practicas=True)
     msj=""
     # sin :
@@ -253,22 +274,26 @@ def solicitarPP():
             else:
                 msj="Se envió la solcitud:"+str(id_solicitud)
     
+    cx.close()
     return render_template("solicitudPP.html",mensaje=msj,datos=datos,abrirDicc=busquedaEnDicc,selects=selects,practicas=True)
 
 @app.route("/solicitudes")
 def listarSolicitudes():
+    cx=conectarBD()
     cx.execute_query("""select 
-	s.id_solicitud,ste.nombres,ste.apellidoPaterno,ste.apellidoMaterno,ste.num_de_control,t.tipo,s.fecha_entrega_solicitud
+	s.id_solicitud,ste.nombres,ste.apellido_paterno,ste.apellido_materno,ste.num_de_control,t.tipo,s.fecha_entrega_solicitud
 FROM solicitud s
     LEFT JOIN solicitante ste ON ste.id_solicitante = s.id_solicitante 
     LEFT JOIN tipoSolicitud t on t.id_tipo=s.tipo_solicitud
-order by apellidoPaterno""")
+order by apellido_paterno""")
     solicitudes=cx.getFetch()
 
+    cx.close()
     return render_template("solicitudes.html",solicitudes=solicitudes)
 
 @app.route("/solicitud:<int:id>")
 def obtener_solicitud(id):
+    cx=conectarBD()
     cx.execute_query("""SELECT 
     s.id_solicitud, s.tipo_solicitud, ste.*, s.telefono_solicitante, edad_solicitante, c.nombre,
     s.semestre, grupo, t.turno, s.fecha_inicio, s.fecha_termino, s.actividades,
@@ -287,6 +312,7 @@ FROM solicitud s
     #     datos[campos[index]]=campoSql
     datos=cx.getFetch()[0]
 
+    cx.close()
     return render_template("solicitud.html",datos=datos,visualizarSolicitud=True,abrirDicc=busquedaEnDicc)
 
 @app.route("/documento")

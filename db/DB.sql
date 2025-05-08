@@ -1,36 +1,35 @@
--- drop schema SSPP;
--- create schema SSPP CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
--- use SSPP;
+
 SET NAMES utf8mb4;
 ################# TABLAS CATALOGO #####################
+--;
 CREATE TABLE if not exists sexo (
 	id_sexo INT AUTO_INCREMENT PRIMARY KEY,
     sexo VARCHAR(9)
 );
-INSERT INTO sexo VALUES(1,"Masculino"),(2,"Femenino"),(3,"Sin dato");
+INSERT INTO sexo VALUES(1,'Masculino'),(2,'Femenino'),(3,'Sin dato');
 
 CREATE TABLE if not exists turno(
 	id_turno INT AUTO_INCREMENT PRIMARY KEY,
     turno VARCHAR(10)
 );
-INSERT INTO turno VALUES(1,"Matutino"),(2,"Vespertino");
+INSERT INTO turno VALUES(1,'Matutino'),(2,'Vespertino');
 
 CREATE TABLE IF NOT EXISTS tipoSolicitud(
 	id_tipo INT PRIMARY KEY,
     tipo VARCHAR(23)
 );
 INSERT INTO tipoSolicitud VALUES
-	(1,"Servicio Social"),
-	(2,"Practicas Profesionales");
+	(1,'Servicio Social'),
+	(2,'Practicas Profesionales');
 CREATE TABLE carreras(
     id_carrera INT PRIMARY KEY AUTO_INCREMENT,
     nombre varchar(50)
 );
 INSERT INTO carreras values
-    (1,"ADMINISTRACION DE RECURSOS HUMANOS"),
-    (2,"MANTENIMIENTO AUTOMOTRIZ"),
-    (3,"PROGRAMACION"),
-    (4,"SOPORTE Y MANTENIMIENTO DE EQUIPO DE COMPUTO");
+    (1,'ADMINISTRACION DE RECURSOS HUMANOS'),
+    (2,'MANTENIMIENTO AUTOMOTRIZ'),
+    (3,'PROGRAMACION'),
+    (4,'SOPORTE Y MANTENIMIENTO DE EQUIPO DE COMPUTO');
 ################# FIN DE TABLAS CATALOGO #####################
 CREATE TABLE IF NOT EXISTS domicilio(
 	id_domicilio INT PRIMARY KEY AUTO_INCREMENT,
@@ -42,8 +41,8 @@ CREATE TABLE IF NOT EXISTS domicilio(
 );
 CREATE TABLE IF NOT EXISTS solicitante(
 	id_solicitante INT PRIMARY KEY AUTO_INCREMENT,
-    apellidoPaterno VARCHAR(30),
-    apellidoMaterno VARCHAR(30),
+    apellido_paterno VARCHAR(30),
+    apellido_materno VARCHAR(30),
     nombres VARCHAR(100),
     id_sexo INT DEFAULT 3,
     
