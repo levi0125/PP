@@ -191,7 +191,7 @@ def solicitarSS():
             else:
                 msj="Se envió la solcitud:"+str(id_solicitud)
 
-    return render_template("solicitudSS.html",mensaje=msj,datos=datos,abrirDicc=busquedaEnDicc,selects=selects)
+    return render_template("solicitudSS.html",mensaje=msj,**datos,abrirDicc=busquedaEnDicc,selects=selects)
     
     # campos="Apellido-paterno,Apellido-materno,nombres,curp,edad,sexo," \
     #     "Calle,Num,Colonia,CP,Telefono," \
@@ -281,7 +281,13 @@ FROM solicitud s
     LEFT JOIN carreras c ON c.id_carrera = s.id_carrera
     LEFT JOIN institucion i ON i.id_institucion = s.id_institucion where s.id_solicitud=%s""",(id))
 
-    return str(cx.getFetch()[0])
+    # campos="ID Solicitud".split(",")
+    # datos={}
+    # for (index,campoSql) in enumerate(cx.getFetch()[0]):
+    #     datos[campos[index]]=campoSql
+    datos=cx.getFetch()[0]
+
+    return render_template("solicitud.html",datos=datos,visualizarSolicitud=True,abrirDicc=busquedaEnDicc)
 
 @app.route("/documento")
 def generar_documento():
