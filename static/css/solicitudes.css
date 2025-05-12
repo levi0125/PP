@@ -1,0 +1,19 @@
+#controladores{
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+#contenedor-solicitudes{
+    height: 90dvh;
+    /* height: 50vh; */
+    overflow: scroll;
+    overflow-x: hidden;
+}
+.solicitud{
+    border: 2px solid black;
+}
+.Practicas_Profesionales{
+    background-color: rgb(154, 154, 154);
+}
+.Servicio_Social{
+    background-color: rgb(114, 100, 100);
+}

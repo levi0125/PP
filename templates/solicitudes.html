@@ -2,9 +2,19 @@
 
 {% block content %}
 
-<div id="contenedir-solicitudes">
+<div id="controladores">
+    <input type="text" placeholder="buscar alumno">
+    <label for="">Filtrar por:</label>
+    <select name="" id="">
+        <option disabled selected>Tipo de Solicitud</option>
+        <option>Servicio Social</option>
+        <option>Practicas Profesionales</option>
+    </select>
+    <button>Aplicar</button>
+</div>
+<div id="contenedor-solicitudes">
     {% for solicitud in solicitudes %}
-        <section class="solicitud" id="{{solicitud.0}}">
+        <section class="solicitud {{ hacerClase(solicitud.5) }}" id="{{solicitud.0}}">
             <div>{{solicitud}}</div>
             <div class="nombre" >Alumno: {{solicitud.3}}{{solicitud.2}}{{solicitud.1}}</div>
             <div class="no_control" >NO. Control:{{solicitud.4}}</div>

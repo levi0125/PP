@@ -274,6 +274,8 @@ def solicitarPP():
     cx.close()
     return render_template("solicitudPP.html",mensaje=msj,datos=datos,abrirDicc=busquedaEnDicc,selects=selects,direccion="solicitudPracticas")
 
+def claseCSS(texto):
+    return texto.replace(" ","_")
 @app.route("/solicitudes")
 def listarSolicitudes():
     cx=conectarBD()
@@ -282,11 +284,11 @@ def listarSolicitudes():
 FROM solicitud s
     LEFT JOIN solicitante ste ON ste.id_solicitante = s.id_solicitante 
     LEFT JOIN tipoSolicitud t on t.id_tipo=s.tipo_solicitud
-order by apellido_paterno""")
+order by s.fecha_registro desc, s.id_solicitud""")
     solicitudes=cx.getFetch()
 
     cx.close()
-    return render_template("solicitudes.html",solicitudes=solicitudes)
+    return render_template("solicitudes.html",solicitudes=solicitudes,hacerClase=claseCSS)
 
 @app.route("/solicitud:<int:id>")
 def obtener_solicitud(id):
