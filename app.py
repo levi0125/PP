@@ -71,15 +71,16 @@ def home():
 
     cx=conectarBD()
     
-    cx.callProcedure("prueba",(35,20,"@res"),("%s,%s,%s"))
-    cx.execute_query("select @res")
-    suma=cx.getFetch()
+    suma=cx.callProcedure("prueba",(35,20),"@res")
+    # cx.execute_query("select @res")
+    # suma=cx.getFetch()
     # cx.execute_query("call prueba(10,34,@res)")
     # cx.execute_query("select @res")
     # suma=cx.getFetch()[0][0]
     # cx.execute_query("select @res")
     print("--------------------->RESULT=",suma)
 
+    cx.close()
     return render_template("home.html")
 
 def busquedaEnDicc(dicc,busqueda):
@@ -143,13 +144,13 @@ def crearJSONpDatos(request):
                 
             "Edad":getFormField(request,"Edad",missing_data),
             "Curp":getFormField(request,"Curp",missing_data),
-            "Correo_Institucional":getFormField(request,"Correo-Institucional",missing_data,"Minus"),
+            "Correo_Institucional":getFormField(request,"No-Control",missing_data) + "@cetis155.edu.mx",
             "Telefono":getFormField(request,"Telefono",missing_data)
             },
             "domicilio":{
-                "Calle":getFormField(request,"Calle",missing_data),
+                "Calle":getFormField(request,"Calle",missing_data,"title"),
                 "Num":getFormField(request,"Num",missing_data),
-                "Colonia":getFormField(request,"Colonia",missing_data),
+                "Colonia":getFormField(request,"Colonia",missing_data,"title"),
                 "CP":getFormField(request,"CP",missing_data),
             }
         },
@@ -194,22 +195,19 @@ def solicitarSS():
         print(missing_data)
     else:
         print("json=",json.dumps(datos))
-        id_solicitud=cx.callProcedure("hacerSolicitud",(json.dumps(datos),"Servicio Social","@id_solic"))
+        id_solicitud=cx.callProcedure("hacerSolicitud",(json.dumps(datos),"Servicio Social"),"@id_solic")
         if(isinstance(id_solicitud, BaseException)):
             #nos devolvió una excepcion
             msj="Excepcion:"+str(id_solicitud)
         else:
-            cx.execute_query("select @id_solic")
-            id_solicitud=cx.getFetch()
-            print("____id_solicitud=",id_solicitud)
-            id_solicitud=[0][0]
+            id_solicitud=id_solicitud[0]
             print("id soli:",id_solicitud)
-            if(id_solicitud==None or id_solicitud=="-1"):
+            if(id_solicitud==None or id_solicitud==-1):
                 msj="No puedes enviar mas de una solicitud del mismo tipo"
             else:
-                msj="Se envió la solcitud:"+str(id_solicitud)
+                msj="Se envió la solcitud"
     cx.close()
-    return render_template("solicitudSS.html",mensaje=msj,**datos,abrirDicc=busquedaEnDicc,selects=selects)
+    return render_template("solicitudSS.html",mensaje=msj,**datos,abrirDicc=busquedaEnDicc,selects=selects,direccion="solicitudServicio")
     
     # campos="Apellido-paterno,Apellido-materno,nombres,curp,edad,sexo," \
     #     "Calle,Num,Colonia,CP,Telefono," \
@@ -229,7 +227,7 @@ def solicitarPP():
     cx.execute_query("select nombre from carreras")
     selects["carreras"]=cx.getFetch()
     if(request.method=="GET"):
-        cx.clsoe()
+        cx.close()
         return render_template("solicitudPP.html",datos=None,abrirDicc=busquedaEnDicc,selects=selects,practicas=True)
     msj=""
     # sin :
@@ -241,7 +239,7 @@ def solicitarPP():
         # Giro,  Jefe-inmediato, tel-j-i, Cargo-j-i, nombre-proyecto
     datos,missing_data=crearJSONpDatos(request)
 
-    datos['institucion']['otros-detalles']={
+    datos['institucion']['otros_detalles']={
         "Giro":getFormField(request,"Giro",missing_data),
         "Jefe_inmediato":getFormField(request,"Jefe-inmediato",missing_data),
         "Tel_j_i":getFormField(request,"Tel-j-i",missing_data),
@@ -262,20 +260,19 @@ def solicitarPP():
                 print(missing_data)
         if(msj==""):
             print("json=",json.dumps(datos))
-            id_solicitud=cx.callProcedure("hacerSolicitud",(json.dumps(datos),"Practicas Profesionales","@id_solic"),True)
+            id_solicitud=cx.callProcedure("hacerSolicitud",(json.dumps(datos),"Practicas Profesionales"),"@id_solic")
             if(isinstance(id_solicitud, BaseException)):
                 #nos devolvió una excepcion
                 msj=str(id_solicitud)
             else:
-                cx.execute_query("select @id_solic")
-            id_solicitud=cx.getFetch()[0][0]
-            if(id_solicitud==None):
-                msj="No puedes enviar mas de una solicitud del mismo tipo"
-            else:
-                msj="Se envió la solcitud:"+str(id_solicitud)
+                id_solicitud=id_solicitud[0]
+                if(id_solicitud==None or id_solicitud==-1):
+                    msj="No puedes enviar mas de una solicitud del mismo tipo"
+                else:
+                    msj="Se envió la solcitud"
     
     cx.close()
-    return render_template("solicitudPP.html",mensaje=msj,datos=datos,abrirDicc=busquedaEnDicc,selects=selects,practicas=True)
+    return render_template("solicitudPP.html",mensaje=msj,datos=datos,abrirDicc=busquedaEnDicc,selects=selects,direccion="solicitudPracticas")
 
 @app.route("/solicitudes")
 def listarSolicitudes():
@@ -295,25 +292,76 @@ order by apellido_paterno""")
 def obtener_solicitud(id):
     cx=conectarBD()
     cx.execute_query("""SELECT 
-    s.id_solicitud, s.tipo_solicitud, ste.*, s.telefono_solicitante, edad_solicitante, c.nombre,
-    s.semestre, grupo, t.turno, s.fecha_inicio, s.fecha_termino, s.actividades,
-    tiene_apoyo_economico, monto_apoyo_economico, fecha_entrega_solicitud, nombre_proyecto,
-    i.*
+    s.id_solicitud, s.tipo_solicitud
+        ,ste.apellido_paterno,ste.apellido_materno,ste.nombres,sx.sexo,ste.num_de_control,ste.curp,ste.correo_institucional
+    ,s.telefono_solicitante, edad_solicitante, c.nombre
+    ,d.calle,d. num_calle,d.colonia,d.codigo_postal
+    ,s.semestre, grupo, t.turno, s.fecha_inicio, s.fecha_termino, s.actividades
+    ,tiene_apoyo_economico, monto_apoyo_economico, fecha_entrega_solicitud, nombre_proyecto
+    ,i.*
+    ,d2.calle,d2. num_calle,d2.colonia,d2.codigo_postal
+    ,dt.jefe_inmediato,dt.cargo_jefe_inmediato,dt.telefono_jefe_inmediato
 FROM solicitud s
     LEFT JOIN solicitante ste ON ste.id_solicitante = s.id_solicitante
     LEFT JOIN domicilio d ON d.id_domicilio = s.id_domicilio_solicitante
     LEFT JOIN turno t ON t.id_turno = s.id_turno
     LEFT JOIN carreras c ON c.id_carrera = s.id_carrera
-    LEFT JOIN institucion i ON i.id_institucion = s.id_institucion where s.id_solicitud=%s""",(id))
+    LEFT JOIN sexo sx on ste.id_sexo=sx.id_sexo
+    LEFT JOIN institucion i ON i.id_institucion = s.id_institucion 
+    LEFT JOIN domicilio d2 ON d2.id_domicilio = i.id_domicilio
+    LEFT JOIN detalles_institucion_para_practicas dt on dt.id_solicitud=s.id_solicitud where s.id_solicitud=%s""",(id))
 
-    # campos="ID Solicitud".split(",")
-    # datos={}
-    # for (index,campoSql) in enumerate(cx.getFetch()[0]):
-    #     datos[campos[index]]=campoSql
-    datos=cx.getFetch()[0]
+    campos=("ID,Tipo,Apellido_P,Apellido_M,nombres,sexo,no_control,curp,correo,tel,edad,carrera"
+            +",calle,num_calle,colonia,codigo_postal"
+            +",semestre,grupo,turno,inicio,termino,activ,apoyo,monto,entrega,nombre_proy"
+            +",id_inst,nombre_inst,rep_leg,cargo_rep_leg,id_dom,tel_inst,rfc,giro,verificada"
+            +",calle_inst,num_calle_inst,colonia_inst,codigo_postal_inst"
+            +",jefe_inmediato,cargo_jefe_inmediato,tel_jefe_inmediato").split(",")
+    datos={}
+    for (index,campoSql) in enumerate(cx.getFetch("one") or []):
+        print(campos[index],"=",campoSql)
+        datos[campos[index]]=campoSql
+    # datos=cx.getFetch()[0]
+
+    selects={}
+    cx.execute_query("select sexo from sexo")
+    selects["sexo"]=cx.getFetch()
+    cx.execute_query("select nombre from carreras")
+    selects["carreras"]=cx.getFetch()
 
     cx.close()
-    return render_template("solicitud.html",datos=datos,visualizarSolicitud=True,abrirDicc=busquedaEnDicc)
+    if(datos=={}):
+        return "ERROR"
+    return render_template("solicitudSS.html" if datos["Tipo"]==1 else "solicitudPP.html",
+            **datos,selects=selects ,visualizarSolicitud=True,abrirDicc=busquedaEnDicc , direccion="revision"      
+        )
+
+@app.route("/revision:<int:id>",methods=['POST'])
+def revisarSolicitud(id):
+    return "Trabajando en ello"
+
+@app.route("/institucion:<string:rfc>")
+def obtenerInst(rfc):
+    cx=conectarBD()
+    exito=cx.execute_query("""
+select 
+	i.nombre_institucion,i.representante_legal,i.cargo_representante_legal,i.telefono,i.RFC,i.giro,
+    d.calle,d.num_calle,d.colonia,d.codigo_postal
+from institucion i 
+	left join domicilio d on i.id_domicilio=d.id_domicilio 
+    where RFC=%s and i.verificada=true ORDER BY i.id_institucion desc LIMIT 1""",(rfc))
+    respuesta={"existe":False}
+    if(exito==1):
+        campos="nombre,representante,cargo,telefono,rfc,giro,calle,numero,colonia,cp".split(",")
+        datos={"institucion":{},"domicilio":{}}
+        for (index,dato) in enumerate(cx.getFetch("one") or []):
+            datos["institucion" if index <6 else "domicilio"][campos[index]]=dato
+
+        respuesta["datos"]=datos if datos["institucion"]!={} else None
+        if(respuesta["datos"]!=None):
+            respuesta["existe"]=True    
+    cx.close()
+    return respuesta
 
 @app.route("/documento")
 def generar_documento():

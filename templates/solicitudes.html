@@ -5,6 +5,7 @@
 <div id="contenedir-solicitudes">
     {% for solicitud in solicitudes %}
         <section class="solicitud" id="{{solicitud.0}}">
+            <div>{{solicitud}}</div>
             <div class="nombre" >Alumno: {{solicitud.3}}{{solicitud.2}}{{solicitud.1}}</div>
             <div class="no_control" >NO. Control:{{solicitud.4}}</div>
             <div class="tipo_solicitud" >Tipo: {{solicitud.5}}</div>

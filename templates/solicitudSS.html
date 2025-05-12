@@ -1,5 +1,6 @@
 {% extends 'layoutSolicitudes.html' %}
 
+<!-- abrirDicc(datos,'institucion.datos.Institucion' -->
 
 {% block content %}
 <h1 class="centrar-texto mayusculas" id="encabezado">Solicitud de Servicio Social</h1>
@@ -10,33 +11,33 @@
         <p class="mayusculas col-3">Nombre del alumno:</p>
         <div class="campo desplazamiento col-3">
             <label for="Apellido-paterno">Apellido Paterno</label>
-            <input type="text" name="A1pellido-paterno" id="Institucion" id="Apellido-paterno">
+            <input value="{{Apellido_P}}" type="text" name="Apellido-paterno" id="Apellido-paterno" pattern="[a-zA-ZñÑ]{1,}" maxlength="30">
         </div>
         <div class="campo desplazamiento col-3">
             <label for="Apellido-materno">Apellido Materno</label>
-            <input type="text" name="Apellido-materno" id="Apellido-materno">
+            <input value="{{Apellido_M}}" type="text" name="Apellido-materno" id="Apellido-materno" pattern="[a-zA-ZñÑ]{1,}" maxlength="30">
         </div>
         <div class="campo desplazamiento col-3">
             <label for="Nombres">Nombre(s)</label>
-            <input type="text" name="Nombres" id="Nombres">
+            <input value="{{nombres}}" type="text" name="Nombres" id="Nombres" pattern="[a-zA-ZñÑ\s]{1,}" maxlength="100">
         </div>
     <!-- </section>
 
     <section class="row" > -->
         <div class="campo desplazamiento col-6">
             <label for="Curp">CURP:</label>
-            <input type="text" name="Curp" id="Curp">
+            <input value="{{curp}}" type="text" name="Curp" id="Curp" pattern="[a-zA-ZñÑ0-9]{18}" maxlength="18">
         </div>
         <div class="campo desplazamiento col-3">
             <label for="Edad" class="mayusculas">Edad:</label>
-            <input type="number" name="Edad" id="Edad">
+            <input value="{{edad}}" type="number" name="Edad" id="Edad">
         </div>
         <div class="campo desplazamiento col-3" id="conenedor-campo-sexo">
             <label for="Sexo" class="mayusculas">Sexo</label>
-            <select id="Sexo" name="Sexo" >
-                <option value="" disabled selected></option>
+            <select data-value="{{sexo}}" id="Sexo" name="Sexo" >
+                <option  disabled selected></option>
                 {% for index in range(2) %}
-                    <option>{{ abrirDicc(selects,'sexo')[index][0] }}</option>
+                    <option >{{ abrirDicc(selects,'sexo')[index][0] }}</option>
                 {% endfor %}
                 <!-- <option>F</option>
                 <option>M</option> -->
@@ -48,34 +49,34 @@
         <p class="col-12" class="mayusculas">Domicilio Particular:</p>
         <div class="campo desplazamiento col-4">
             <label for="Calle">Calle</label>
-            <input type="text" name="Calle" id="calle" >
+            <input value="{{calle}}" type="text" name="Calle" id="calle" pattern="[a-zA-ZñÑ0-9\s.]{1,}" maxlength="40">
         </div>
         <div class="campo desplazamiento col-2">
             <label for="Num">Núm</label>
-            <input type="text" name="Num" id="numero" >
+            <input value="{{num_calle}}" type="number" name="Num" id="numero">
         </div>
         <div class="campo desplazamiento col-2">
             <label for="Colonia">Colonia</label>
-            <input type="text" name="Colonia" id="Colonia" >
+            <input value="{{colonia}}" type="text" name="Colonia" id="Colonia" pattern="[a-zA-ZñÑ\s]{1,}" maxlength="30">
         </div>
         <div class="campo desplazamiento col-2">
             <label for="CP">C.P.</label>
-            <input type="text" name="CP" id="CP" >
+            <input value="{{codigo_postal}}" type="number" name="CP" id="CP" >
         </div>
         <div class="campo desplazamiento col-2">
             <label for="Telefono">Télefono</label>
-            <input type="text" name="Telefono" id="Telefono" >
+            <input value="{{tel}}" type="text" name="Telefono" id="Telefono" pattern="\d{10,13}" maxlength="13">
         </div>
     </section>
 
     <section class="row">
         <div class="campo desplazamiento col-6">
             <label for="No-Control" class="mayusculas">No. de Control</label>
-            <input type="text" name="No-Control" id="No-Control" value="2230106155">
+            <input value="{{no_control or 2230106155}}" type="text"  name="No-Control" id="No-Control" pattern="[0-9]{14}" maxlength="14">
         </div>
         <div class="campo desplazamiento col-6">
             <label for="Carrera" class="mayusculas">CARRERA</label>
-            <select type="text" name="Carrera" id="Carrera" >
+            <select data-value="{{carrera}}" type="text" name="Carrera" id="Carrera" >
                 <option value="" disabled selected></option>
                 {% for s in selects.carreras %}
                     <option>{{s.0}}</option>
@@ -83,15 +84,15 @@
             </select>
         </div>
     <!-- </section>
-
+22301061550038@cetis155.edu.mx
     <section class="row"> -->
         <div class="campo desplazamiento col-5">
             <label for="Correo-Institucional">CORREO INSTITUCIONAL</label>
-            <input type="text" name="Correo-Institucional" id="Correo-Institucional" >
+            <input value="{{correo}}" type="email" disabled name="Correo-Institucional" id="Correo-Institucional">
         </div>
         <div class="campo desplazamiento col-3">
             <label for="Semestre" class="mayusculas">Semestre</label>
-            <select name="Semestre" id="Semestre" >
+            <select data-value="{{semestre}}°" name="Semestre" id="Semestre" >
                 <option value="" disabled selected></option>
                 <option>4°</option>
                 <option>5°</option>
@@ -100,32 +101,38 @@
         </div>
         <div class="campo desplazamiento col-2">
             <label for="Grupo" class="mayusculas">Grupo</label>
-            <input type="text" name="Grupo" id="Grupo" id="Grupo" class="mayusculas">
+            <input value="{{grupo}}" type="text" name="Grupo" id="Grupo" id="Grupo" class="mayusculas">
         </div>
         <div class="campo desplazamiento col-2">
             <label for="Turno" class="mayusculas">Turno</label>
-            <select name="Turno" id="Turno">
+            <select data-value="{{turno}}" name="Turno" id="Turno">
                 <option value="" disabled selected></option>
                 <Option>Matutino</Option>
                 <Option>Vespertino</Option>
             </select>
+        </div>
+        <h3 class="centrar-texto mayusculas" >
+            (asegurate de escribir completos y correctamente tus datos)
+        </h3>
     </section>
 </fieldset>
 
 <fieldset class="scroll-reveal">
     <legend class="mayusculas">Datos de la institucion donde se prestará su servicio social</legend>
+    <h3 class="mayusculas">NOTA: Puede buscar la Institucion por su RFC. Solo tiene que ingresarlo y buscaremos si ya lo tenemos registrado</h3>
+
     <section class="un-renglon">
         <div class="campo row">
             <label for="Institucion" class="mayusculas">Institucion:</label>
-            <input value="{{ abrirDicc(datos,'institucion.datos.Institucion') }}" type="text" name="Institucion"id="Institucion" >
+            <input value="{{nombre_inst}}" type="text" name="Institucion"id="Institucion" pattern="[a-zA-ZñÑ0-9\s.]{1,}" maxlength="100">
         </div>
         <div class="campo row">
             <label for="Persona-objetivo" class="mayusculas ">a quien se dirige la carta de presentacion: </label>
-            <input value="{{ abrirDicc(datos,'institucion.datos.Persona-objetivo') }}" type="text" name="Persona-objetivo" id="Persona-objetivo" >        
+            <input value="{{rep_leg}}" type="text" name="Persona-objetivo" id="Persona-objetivo" pattern="[a-zA-ZñÑ\s.]{1,}" maxlength="100">        
         </div>
         <div class="campo row">
             <label for="Cargo" class="mayusculas ">Cargo que desempeña:</label>
-            <input value="{{ abrirDicc(datos,'institucion.datos.Cargo') }}" type="text" name="Cargo" id="Cargo" >    
+            <input value="{{cargo_rep_leg}}" type="text" name="Cargo" id="Cargo" pattern="[a-zA-ZñÑ0-9\s]{1,}" maxlength="50">
         </div>
     </section>
 
@@ -133,27 +140,27 @@
         <p class="col-5">DOMICILIO DE LA INSTITUCION:</p>
         <div class="campo desplazamiento col-5">
             <label for="Calle-institucion">Calle</label>
-            <input type="text" name="Calle-institucion" id="Calle-Institucion" >
+            <input value="{{calle_inst}}" type="text" name="Calle-institucion" id="Calle-Institucion" pattern="[a-zA-ZñÑ0-9\s.]{1,}" maxlength="40">
         </div>
         <div class="campo desplazamiento col-2">
             <label for="Num-institucion">Número</label>
-            <input type="text" name="Num-institucion" id="Num-Institucion" >
+            <input value="{{num_calle_inst}}" type="number" name="Num-institucion" id="Num-Institucion" >
         </div>
         <div class="campo desplazamiento col-4">
             <label for="Colonia-institucion">Colonia</label>
-            <input type="text" name="Colonia-institucion" id="Colonia-Institucion" >
+            <input value="{{colonia_inst}}" type="text" name="Colonia-institucion" id="Colonia-Institucion" pattern="[a-zA-ZñÑ\s]{1,}" maxlength="30">
         </div>
         <div class="campo desplazamiento col-2">
             <label for="CP-institucion">C.P.</label>
-            <input type="text" name="CP-institucion" id="CP-Institucion" >
+            <input value="{{codigo_postal_inst}}" type="number" name="CP-institucion" id="CP-Institucion" >
         </div>
         <div class="campo desplazamiento col-3">
             <label for="Telefono-institucion">Télefono</label>
-            <input type="text" name="Telefono-institucion" id="Telefono-Institucion" >
+            <input value="{{tel_inst}}" type="text" name="Telefono-institucion" id="Telefono-Institucion" pattern="[0-9]{10,13}" maxlength="13">
         </div>
         <div class="campo desplazamiento col-3">
             <label for="RFC">R.F.C.</label>
-            <input type="text" name="RFC" id="RFC" >
+            <input value="{{rfc}}" type="text" name="RFC" id="RFC" pattern="[a-zA-ZñÑ0-9]{9,13}" maxlength="13">
         </div>
     </section>
 
@@ -161,13 +168,16 @@
         <p class="col-2 texto-derecha">Fechas:</p>
         <div class="campo col-5 fecha">
             <label for="Inicio" class="mayusculas">Inicio:</label>
-            <input type="date" id="Inicio" name="Inicio">
+            <input value="{{inicio}}" type="date" id="Inicio" name="Inicio">
         </div>
         <div class="campo col-5 fecha">
             <label for="Termino" class="mayusculas">Termino:</label>
-            <input type="date" id="Termino" name="Termino">
+            <input value="{{termino}}" type="date" id="Termino" name="Termino">
         </div>
     </section>
+    <h3 class="mayusculas">
+            nota: el servicio social equivale a 6 meses +1 dia, cubriendo un total de 480 horas, considerando 4 horas diarias, de lunes a viernes.
+    </h3>
 </fieldset>
 
 <fieldset class="scroll-reveal">
@@ -176,32 +186,30 @@
         <div class="campo col-12">
             <label for="Actividades">Actividades a realizar:</label>
             <!-- <input type="text" name="Actividades" id="Actividades" id="Institucion" > -->
-            <textarea rows="3" type="text" name="Actividades" id="Actividades" ></textarea>
+            <textarea rows="3" type="text" name="Actividades" id="Actividades" maxlength="150">{{activ}}</textarea>
         </div>
     </section>
     <section class="row un-renglon">
         <div class="campo col-6">
             <p class="col-auto">Recibirá apoyo económico:</p>
-            <select name="Recibe-apoyo" id="Recibe-apoyo" class="w-100">
+            <select data-value="{% if apoyo %}SI{% else %}NO{% endif %}" name="Recibe-apoyo" id="Recibe-apoyo" class="w-100">
                 <option>NO</option>
                 <option>SI</option>
             </select>
         </div>
         <div class="campo col-3 desaparecer" id="contenedor-monto">
             <label for="Monto">Cantidad:</label>
-            <input type="number" name="Monto" id="Monto">
+            <input value="monto" type="number" name="Monto" id="Monto">
         </div>
         
     </section>
     <section class="row un-renglon espacio">
         <p class="col-auto" class="col-auto">Aguascalientes, Ags;</p>
-        <input type="date" class="col-auto" name="Fecha-entrega" id="Fecha-entrega">
+        <input value="{{entrega}}" type="date" class="col-auto" name="Fecha-entrega" id="Fecha-entrega">
         <!-- <div class="campo col-8">
         </div> -->
     </section>
     
     <!-- NO OLVIDAR OBTENER LA FECHA DE ENTREGA; GENERADA EN EL BACK-END -->
 </fieldset>
-
-<script src="/static/js/solicitudSS.js"></script>
 {% endblock %}

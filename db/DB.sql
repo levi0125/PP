@@ -1,5 +1,8 @@
-
+drop database SSPP;
+create database SSPP;
+use SSPP;
 SET NAMES utf8mb4;
+set sql_safe_updates=0;
 ################# TABLAS CATALOGO #####################
 --;
 CREATE TABLE if not exists sexo (
@@ -52,6 +55,7 @@ CREATE TABLE IF NOT EXISTS solicitante(
     correo_institucional VARCHAR(50),
     FOREIGN KEY (id_sexo) REFERENCES sexo(id_sexo)
 );
+
 CREATE TABLE IF NOT EXISTS institucion (
 	id_institucion INT PRIMARY KEY AUTO_INCREMENT,
     nombre_institucion VARCHAR(100),
@@ -64,17 +68,11 @@ CREATE TABLE IF NOT EXISTS institucion (
     RFC VARCHAR (13),
 
     giro VARCHAR(40),#creo que es la actividad de la empresa/institucion
-    
+    verificada tinyint,
     FOREIGN KEY (id_domicilio) REFERENCES domicilio(id_domicilio)
 );
-
-CREATE TABLE IF NOT EXISTS detalles_institucion_para_practicas(
-	id_institucion INT ,
-    jefe_inmediato VARCHAR(100),
-    cargo_jefe_inmediato VARCHAR(60),
-    telefono_jefe_inmediato VARCHAR(10),
-    FOREIGN KEY (id_institucion)  REFERENCES institucion(id_institucion)
-);
+-- alter table institucion add column verificada tinyint;
+-- select * from institucion;
 
 CREATE TABLE IF NOT EXISTS solicitud(
 	id_solicitud INT PRIMARY KEY AUTO_INCREMENT,
@@ -107,7 +105,7 @@ CREATE TABLE IF NOT EXISTS solicitud(
     -- opcional, si es que le dan apoyo economico
     
     fecha_entrega_solicitud DATE,
-    
+    fecha_registro date,
     estado_solicitud INT DEFAULT 0,
     -- 0 -> pendiente por revision
     -- 1 -> aceptado y revisado
@@ -121,4 +119,11 @@ CREATE TABLE IF NOT EXISTS solicitud(
     FOREIGN KEY(id_turno) REFERENCES turno(id_turno),
     FOREIGN KEY(id_institucion) REFERENCES institucion(id_institucion),
     FOREIGN KEY(id_carrera) REFERENCES carreras(id_carrera)
+);
+CREATE TABLE IF NOT EXISTS detalles_institucion_para_practicas(
+	id_solicitud INT primary key,
+    jefe_inmediato VARCHAR(100),
+    cargo_jefe_inmediato VARCHAR(60),
+    telefono_jefe_inmediato VARCHAR(13),
+    FOREIGN KEY (id_solicitud) references solicitud(id_solicitud)
 );

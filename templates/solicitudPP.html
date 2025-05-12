@@ -7,15 +7,15 @@
     <section id="Nombre-de-alumno" class="row">
       <div class="campo desplazamiento col-4">
           <label for="Nombres">Nombre(s)</label>
-          <input type="text" name="Nombres" id="Nombres">
+          <input value="{{nombres}}" type="text" name="Nombres" id="Nombres" pattern="[a-zA-ZñÑ\s]{1,}" maxlength="100">
       </div>
         <div class="campo desplazamiento col-4">
             <label for="Apellido-paterno">Apellido Paterno</label>
-            <input type="text" name="Apellido-paterno" id="Apellido-paterno">
+            <input value="{{Apellido_P}}" type="text" name="Apellido-paterno" id="Apellido-paterno" pattern="[a-zA-ZñÑ]{1,}" maxlength="30">
         </div>
         <div class="campo desplazamiento col-4">
             <label for="Apellido-materno">Apellido Materno</label>
-            <input type="text" name="Apellido-materno" id="Apellido-materno">
+            <input value="{{Apellido_M}}" type="text" name="Apellido-materno" id="Apellido-materno" pattern="[a-zA-ZñÑ]{1,}" maxlength="30">
         </div>
     </section>
 
@@ -23,23 +23,23 @@
         <p class="col-12" >Domicilio:</p>
         <div class="campo desplazamiento col-4">
             <label for="Calle">Calle</label>
-            <input type="text" name="Calle" id="calle" >
+            <input value="{{calle}}" type="text" name="Calle" id="calle" pattern="[a-zA-ZñÑ0-9\s.]{1,}" maxlength="40">
         </div>
         <div class="campo desplazamiento col-1">
             <label for="Num">No.</label>
-            <input type="text" name="Num" id="numero" >
+            <input value="{{num_calle}}" type="number" name="Num" id="numero">
         </div>
         <div class="campo desplazamiento col-3">
             <label for="Colonia">Colonia</label>
-            <input type="text" name="Colonia" id="Colonia" >
+            <input value="{{colonia}}" type="text" name="Colonia" id="Colonia" pattern="[a-zA-ZñÑ\s]{1,}" maxlength="30">
         </div>
         <div class="campo desplazamiento col-2">
             <label for="CP">C.P.</label>
-            <input type="text" name="CP" id="CP" >
+            <input value="{{codigo_postal}}" type="number" name="CP" id="CP" >
         </div>
         <div class="campo desplazamiento col-2">
             <label for="Telefono">Télefono Cel</label>
-            <input type="text" name="Telefono" id="Telefono" >
+            <input value="{{tel}}" type="text" name="Telefono" id="Telefono" pattern="\d{10,13}" maxlength="13">
         </div>
     </section>
 </fieldset>
@@ -48,11 +48,11 @@
     <section class="row">
         <div class="campo desplazamiento col-3">
             <label for="No-Control">Numero de Control</label>
-            <input type="text" name="No-Control" id="No-Control" value="2230106155">
+            <input value="{{no_control or 2230106155}}" type="text" name="No-Control" id="No-Control" pattern="[0-9]{14}" maxlength="14">
         </div>
         <div class="campo desplazamiento col-3">
             <label for="Carrera">Especialidad</label>
-            <select type="text" name="Carrera" id="Carrera" >
+            <select data-value="{{carrera}}" type="text" name="Carrera" id="Carrera" >
                 <option value="" disabled selected></option>
                 {% for s in selects.carreras %}
                     <option>{{s.0}}</option>
@@ -63,7 +63,7 @@
 
         <div class="campo desplazamiento col-2">
             <label for="Semestre">Semestre</label>
-            <select name="Semestre" id="Semestre" >
+            <select data-value="{{semestre}}°" name="Semestre" id="Semestre" >
                 <option value="" disabled selected></option>
                 <option>5°</option>
                 <option>6°</option>
@@ -71,11 +71,11 @@
         </div>
         <div class="campo desplazamiento col-2">
             <label for="Grupo" class="mayusculas">Grupo</label>
-            <input type="text" name="Grupo" id="Grupo" id="Grupo" class="mayusculas">
+            <input value="{{grupo}}" type="text" name="Grupo" id="Grupo" class="mayusculas">
         </div>
         <div class="campo desplazamiento col-2">
             <label for="Turno" class="mayusculas">Turno</label>
-            <select name="Turno" id="Turno">
+            <select data-value="{{turno}}" name="Turno" id="Turno">
                 <option value="" disabled selected></option>
                 <Option>Matutino</Option>
                 <Option>Vespertino</Option>
@@ -86,11 +86,11 @@
       <b class="col-12">Periodo de Prácticas Profesionales(tres meses, más un día), acumulando 240 horas:</b>
       <div class="campo col-6 fecha">
           <label for="Inicio" class="mayusculas">Inicio:</label>
-          <input type="date" id="Inicio" name="Inicio">
+          <input value="{{inicio}}" type="date" id="Inicio" name="Inicio">
       </div>
       <div class="campo col-6 fecha">
           <label for="Termino" class="mayusculas">Termino:</label>
-          <input type="date" id="Termino" name="Termino">
+          <input value="{{termino}}" type="date" id="Termino" name="Termino">
       </div>
   </section>
 </fieldset>
@@ -100,26 +100,26 @@
     <section class="row">
         <div class="campo desplazamiento col-5">
           <label for="Institucion">Nombre o razon Social</label>
-          <input type="text" name="Institucion" >
+          <input value="{{nombre_inst}}"  type="text" name="Institucion" id="Institucion" pattern="[a-zA-ZñÑ0-9\s.]{1,}" maxlength="100">
         </div>
         <div class="campo desplazamiento col-3">
           <label for="RFC">R.F.C.</label>
-          <input type="text" name="RFC" id="RFC" >
+          <input value="{{rfc}}" type="text" name="RFC" id="RFC" pattern="[a-zA-ZñÑ0-9]{9,13}" maxlength="13">
         </div>
         <div class="campo desplazamiento col-4">
           <label for="Giro">Giro</label>
-          <input  type="text" name="Giro"id="Giro" >
+          <input value="{{giro}}" type="text" name="Giro"id="Giro" pattern="[a-zA-ZñÑ\s,]+" maxlength="40">
         </div>
 
 
 
         <div class="campo desplazamiento col-7">
             <label for="Persona-objetivo" >Nombre del Represetante Legal</label>
-            <input type="text" name="Persona-objetivo" id="Persona-objetivo" >
+            <input value="{{rep_leg}}" type="text" name="Persona-objetivo" id="Persona-objetivo" pattern="[a-zA-ZñÑ\s.]{1,}" maxlength="100">
         </div>
         <div class="campo desplazamiento col-5">
           <label for="Cargo" >Cargo</label>
-          <input type="text" name="Cargo" id="Cargo" >
+          <input value="{{cargo_rep_leg}}" type="text" name="Cargo" id="Cargo" pattern="[a-zA-ZñÑ0-9\s]{1,}" maxlength="50">
         </div>
         
 
@@ -127,38 +127,38 @@
         <p class="col-12">Domicilio:</p>
         <div class="campo desplazamiento col-9">
             <label for="Calle-institucion">Calle</label>
-            <input type="text" name="Calle-institucion" id="Calle-Institucion" >
+            <input value="{{calle_inst}}" type="text" name="Calle-institucion" id="Calle-Institucion" pattern="[a-zA-ZñÑ0-9\s.]{1,}" maxlength="40">
         </div>
         <div class="campo desplazamiento col-3">
             <label for="Num-institucion">No.</label>
-            <input type="text" name="Num-institucion" id="Num-Institucion" >
+            <input value="{{num_calle_inst}}" type="number" name="Num-institucion" id="Num-Institucion" >
         </div>
 
         <div class="campo desplazamiento col-5">
             <label for="Colonia-institucion">Colonia/Fracc</label>
-            <input type="text" name="Colonia-institucion" id="Colonia-Institucion" >
+            <input value="{{colonia_inst}}" type="text" name="Colonia-institucion" id="Colonia-Institucion" pattern="[a-zA-ZñÑ\s]{1,}" maxlength="30">
         </div>
         <div class="campo desplazamiento col-3">
             <label for="CP-institucion">C.P.</label>
-            <input type="text" name="CP-institucion" id="CP-Institucion" >
+            <input value="{{codigo_postal_inst}}" type="number" name="CP-institucion" id="CP-Institucion" >
         </div>
         <div class="campo desplazamiento col-4">
             <label for="Telefono-institucion">Télefono</label>
-            <input type="text" name="Telefono-institucion" id="Telefono-Institucion" >
+            <input value="{{tel_inst}}" type="text" name="Telefono-institucion" id="Telefono-Institucion" pattern="[0-9]{10,13}" maxlength="13">
         </div>        
 
 
       <div class="campo desplazamiento col-6">
         <label for="Jefe-inmediato" >Nombre del Jefe Inmediato</label>
-        <input type="text" name="Jefe-inmediato" id="Jefe-inmediato" >
+        <input value="{{jefe_inmediato}}" type="text" name="Jefe-inmediato" id="Jefe-inmediato" pattern="[a-zA-ZñÑ\s.]{1,}" maxlength="100">
       </div>
       <div class="campo desplazamiento col-2">
         <label for="Tel-j-i">Teléfono</label>
-        <input  type="text" name="Tel-j-i"id="Tel-j-i" >
+        <input value="{{tel_jefe_inmediato}}" type="text" name="Tel-j-i"id="Tel-j-i" pattern="[0-9]{10,13}" maxlength="13">
       </div>
       <div class="campo desplazamiento col-4">
           <label for="Cargo-j-i" >Cargo</label>
-          <input  type="text" name="Cargo-j-i" id="Cargo-j-i" >
+          <input value="{{cargo_jefe_inmediato}}" type="text" name="Cargo-j-i" id="Cargo-j-i" pattern="[a-zA-ZñÑ0-9\s]{1,}" maxlength="50">
       </div>
     </section>
 </fieldset>
@@ -169,33 +169,33 @@
     <section class="row un-renglon">
       <div class="campo col-12">
           <label for="Nombre-proyecto">Nombre del proyecto:</label>
-          <input type="text" name="Nombre-proyecto" id="Nombre-proyecto" >
+          <input value="{{nombre_proy}}" type="text" name="Nombre-proyecto" id="Nombre-proyecto" pattern="[\w\s]+" maxlength="100">
       </div>
     </section>
     <section class="row un-renglon">
         <div class="campo col-12">
             <label for="Actividades">Actividades a realizar:</label>
-            <textarea rows="3" type="text" name="Actividades" id="Actividades" ></textarea>
+            <textarea rows="3" type="text" name="Actividades" id="Actividades" pattern="[\w\s]+" maxlength="150">{{activ}}</textarea>
         </div>
     </section>
 
     <section class="row un-renglon">
         <div class="campo col-6">
             <p class="col-auto">Recibirá apoyo económico:</p>
-            <select name="Recibe-apoyo" id="Recibe-apoyo" class="w-100">
+            <select data-value="{% if apoyo %}SI{% else %}NO{% endif %}" name="Recibe-apoyo" id="Recibe-apoyo" class="w-100">
                 <option>NO</option>
                 <option>SI</option>
             </select>
         </div>
         <div class="campo col-3 desaparecer" id="contenedor-monto">
             <label for="Monto">Cantidad:</label>
-            <input type="number" name="Monto" id="Monto">
+            <input value="{{monto}}" type="number" name="Monto" id="Monto">
         </div>
         
     </section>
     <section class="row un-renglon espacio">
         <p class="col-auto" class="col-auto">Aguascalientes, Ags;</p>
-        <input type="date" class="col-auto" name="Fecha-entrega" id="Fecha-entrega">
+        <input value="{{entrega}}" type="date" class="col-auto" name="Fecha-entrega" id="Fecha-entrega">
         <!-- <div class="campo col-8">
         </div> -->
     </section>
@@ -203,5 +203,4 @@
     <!-- NO OLVIDAR OBTENER LA FECHA DE ENTREGA; GENERADA EN EL BACK-END -->
 </fieldset>
 
-<script src="/static/js/solicitudSS.js"></script>
 {% endblock %}

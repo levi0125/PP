@@ -4,12 +4,13 @@ nav{
     div{
         display: grid;
         grid-template-rows: 1fr;
-        grid-template-columns: auto auto auto;
+        grid-template-columns: repeat(auto-fit,minmax(120px, auto));
         justify-content: start;
         gap: 4vw;
         padding-left: 5%;
         a, a:visited{
-            color:white
+            color:white;
+            text-align: center;
         }
     }
 }

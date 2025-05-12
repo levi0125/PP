@@ -4,21 +4,16 @@ create procedure insertarDomicilio(
     out out_id_domicilio int
 	)
 begin
-	select datos_domicilio as 'JSON del domicilio';
-
     set @in_calle = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_domicilio, '$.Calle')));
     set @in_num_calle = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_domicilio, '$.Num')));
     set @in_colonia = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_domicilio, '$.Colonia')));
     set @in_codigo_postal = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_domicilio, '$.CP')));
-
-	select @in_calle,@in_num_calle,@in_colonia,@in_codigo_postal;
     
 	etiqueta: begin
 		select (select id_domicilio from domicilio where 
             calle=@in_calle and num_calle=@in_num_calle and colonia=@in_colonia and codigo_postal=@in_codigo_postal);
         set out_id_domicilio=(select id_domicilio from domicilio where 
             calle=@in_calle and num_calle=@in_num_calle and colonia=@in_colonia and codigo_postal=@in_codigo_postal);
-		select 'averiguando del domicilio 2';
         if(out_id_domicilio is not null) then
             # ya existe el domicilio
             select 'ya existe el dom';
@@ -39,7 +34,6 @@ DELIMITER ;
 DELIMITER //
 create procedure insertarInstitucion(
     in datos_inst JSON,
-    in para_practicas tinyint,
     out out_id_institucion int
 	)
 begin
@@ -54,13 +48,17 @@ begin
     set @domicilio=JSON_EXTRACT(datos_inst, '$.domicilio');
     set @id_dom = 0;
 	select @in_nombre, @in_rep_legal, @in_cargo, @id_dom , @in_rfc,@in_telefono;
-    # call insertarDomicilio(@in_calle,@in_num_calle,@in_colonia,@in_codigo_postal,@in_telefono,@id_dom);
 
     etiqueta: begin
-        set out_id_institucion= (select id_institucion from institucion where rfc=@in_rfc);
+		call insertarDomicilio (@domicilio, @id_dom);
+        
+        select id_institucion,(nombre_institucion=@in_nombre and representante_legal=@in_rep_legal and cargo_representante_legal= @in_cargo
+            and id_domicilio=@id_dom and telefono=@in_telefono)
+            into out_id_institucion, @concuerdan_datos from institucion where rfc=@in_rfc order by id_institucion desc LIMIT 1;
 
-        if(out_id_institucion is null) then     
-			call insertarDomicilio (@domicilio, @id_dom);
+        if(out_id_institucion is null or not @concuerdan_datos) then     
+            -- no existe la institucion
+            -- parece ser la misma, pero con diferentes datos
             insert into institucion
                 (nombre_institucion,representante_legal,cargo_representante_legal,
                     id_domicilio,RFC,telefono) 
@@ -69,22 +67,6 @@ begin
                 );
             set out_id_institucion=(select last_insert_id());
         end if;
-
-        if(para_practicas) then
-            set @in_giro =nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.otros_detalles.Giro')));
-            set @in_jefe_inmediato =nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.otros_detalles.Jefe_inmediato')));
-            set @in_tel =nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.otros_detalles.Tel_j_i')));
-            set @in_cargo =nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_inst, '$.otros_detalles.Cargo_j_i')));
-        
-            update institucion set giro=@in_giro where id_institucion=@out_id_institucion;
-
-            insert into detalles_institucion_para_practicas 
-                (jefe_inmediato,cargo_jefe_inmediato,telefono_jefe_inmediato, id_institucion) 
-            values (
-                @in_jefe_inmediato,@in_cargo,@in_telefono, out_id_institucion
-            );
-
-        end if; 
     end etiqueta;
 end //
 DELIMITER ;
@@ -93,51 +75,56 @@ DELIMITER //
 create procedure insertarSolicitante(
     in datos_solicitante JSON,
     out out_id_solicitante int,
-    out id_domicilio int
+    out out_id_domicilio int
 )
 begin
-	select datos_solicitante as 'JSON solicitante';
     select JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.No_Control'));
     set @in_num_de_control = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.No_Control')));
-    select 'ppaso el n control';
+
     etiqueta: begin
         set out_id_solicitante = (select id_solicitante from solicitante where num_de_control=@in_num_de_control);
-        call insertarDomicilio( JSON_EXTRACT(datos_solicitante,'$.domicilio') , id_domicilio);
+        call insertarDomicilio( JSON_EXTRACT(datos_solicitante,'$.domicilio') , out_id_domicilio);
+        
+        set @in_curp = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Curp')));
+        set @in_correo = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Correo_Institucional')));
+        set @in_id_sexo=(select id_sexo from sexo where sexo= nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Sexo'))) );
+        
         if(out_id_solicitante is not null) then 
             select 'ya existe solicitante';
+            if(@in_curp is not null and @in_correo is not null and @in_id_sexo is not null) then
+				select out_id_solicitante as 'hay que actualizar al solic ';
+                update solicitante set curp=@in_curp, correo_institucional=@in_correo, id_sexo=@in_id_sexo where id_solicitante=out_id_solicitante;
+            end if;
             leave etiqueta;
         end if;
         
         set @in_apellido_paterno = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Apellido_paterno')));
         set @in_apellido_materno = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Apellido_materno')));
         set @in_nombres = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Nombres')));
-        
-        set @in_curp = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Curp')));
-        set @in_correo = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Correo_Institucional')));
-		
-        set @in_id_sexo=(select id_sexo from sexo where sexo= nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos_solicitante,'$.datos.Sexo'))) );
-        if (@in_id_sexo is null ) then 
-            set @in_id_sexo=3;
-		end if;
-        
+        /*
+        apellido_paterno VARCHAR(30),
+    apellido_materno VARCHAR(30),
+    nombres VARCHAR(100),
+    id_sexo INT DEFAULT 3,
+    
+    num_de_control CHAR(14),
+
+    curp VARCHAR(18),
+    correo_institucional VARCHAR(50),*/
         insert into solicitante(
             apellido_paterno,apellido_materno,nombres,
-            num_de_control,id_sexo,
-
-            curp,correo_institucional
-            )
+            num_de_control)
             values(
                 @in_apellido_paterno,@in_apellido_materno,@in_nombres,
-                @in_num_de_control,@in_id_sexo,
-                
-                @in_curp,@in_correo
-            );
+                @in_num_de_control);
         set out_id_solicitante=(select last_insert_id());
-        
+        if(@in_curp is not null and @in_correo is not null and @in_id_sexo is not null) then
+			update solicitante set curp=@in_curp, correo_institucional=@in_correo, id_sexo=@in_id_sexo where id_solicitante=out_id_solicitante;
+        end if;
     end etiqueta;
 end //
-DELIMITER ;
-
+-- DELIMITER ;
+drop procedure hacerSolicitud;
 DELIMITER //
 create procedure hacerSolicitud(
     in datos JSON,
@@ -150,9 +137,8 @@ begin
     etiqueta: begin
         set @id_tipo_s= (select id_tipo from tipoSolicitud where tipo=in_tipo_solicitud);
 		
-        select 'vas a insertar solic';
         call insertarSolicitante(@datos_solicitante_json,@out_id_solicitante,@id_dom_solicitante);
-        select 'solic ins(hacer solicitud';
+  
         set out_id_solicitud= (select id_solicitud from solicitud where 
             id_solicitante=@out_id_solicitante and tipo_solicitud=@id_tipo_s);
 
@@ -167,7 +153,7 @@ begin
 
 		set @datos_institucion_json = JSON_EXTRACT(datos,'$.institucion');
         
-		call insertarInstitucion(@datos_institucion_json,@id_tipo_s-1,@out_id_institucion);
+		call insertarInstitucion(@datos_institucion_json,@out_id_institucion);        
 		
 		set @in_carrera = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Carrera')));
 		set @in_semestre = nullificar(JSON_UNQUOTE(JSON_EXTRACT(datos,'$.solicitud.datos.Semestre')));
@@ -197,17 +183,34 @@ begin
 		insert into solicitud(
 			id_solicitante,tipo_solicitud,id_domicilio_solicitante,telefono_solicitante,id_carrera,semestre,grupo,id_turno,
 			id_institucion,fecha_inicio,fecha_termino,actividades,tiene_apoyo_economico,
-			monto_apoyo_economico,fecha_entrega_solicitud,estado_solicitud,
+			monto_apoyo_economico,fecha_entrega_solicitud,fecha_registro,estado_solicitud,
 
 			nombre_proyecto,edad_solicitante
 		) values(
 			@out_id_solicitante,@id_tipo_s,@id_dom_solicitante, @in_telefono, (select id_carrera from carreras where nombre=@in_carrera), @in_semestre, @in_grupo,
 			@id_turno, @out_id_institucion, @in_inicio, @in_termino, @in_actividades, @tiene_apoyo,
-			@in_monto, @in_fecha_entrega, 0,
+			@in_monto, @in_fecha_entrega, now(), 0,
 
 			@in_nom_proy,@in_edad
 		);
 		set out_id_solicitud=(select last_insert_id());
+        
+        if(@id_tipo_s-1) then
+			-- es una solicitud de practicas
+            set @in_giro =nullificar(JSON_UNQUOTE(JSON_EXTRACT(@datos_institucion_json, '$.otros_detalles.Giro')));
+            set @in_jefe_inmediato =nullificar(JSON_UNQUOTE(JSON_EXTRACT(@datos_institucion_json, '$.otros_detalles.Jefe_inmediato')));
+            set @in_tel =nullificar(JSON_UNQUOTE(JSON_EXTRACT(@datos_institucion_json, '$.otros_detalles.Tel_j_i')));
+            set @in_cargo =nullificar(JSON_UNQUOTE(JSON_EXTRACT(@datos_institucion_json, '$.otros_detalles.Cargo_j_i')));
+        
+            update institucion set giro=@in_giro where id_institucion=@out_id_institucion;
+
+            insert into detalles_institucion_para_practicas 
+                (jefe_inmediato,cargo_jefe_inmediato,telefono_jefe_inmediato, id_solicitud) 
+            values (
+                @in_jefe_inmediato,@in_cargo,@in_tel, out_id_solicitud
+            );
+
+        end if; 
     end etiqueta;
 end //
 DELIMITER ;

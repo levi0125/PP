@@ -99,9 +99,9 @@ class Conexion:
             print(f"{Back.CYAN}___Consulta exitosa{Back.RESET}")
 
             #    print(f"c={c}")
-            if c==2:
-                self.fetch=self.cursor.fetchall()
-            else:
+            if c!=2:
+            #     self.fetch=self.cursor.fetchall()
+            # else:
                 self.conn.commit()
                 
             return 1
@@ -113,15 +113,26 @@ class Conexion:
             print()
             return -1
     
-    def callProcedure(self,procedureName,parametersTuple=None,parameterHandler=None):
+    def callProcedure(self,procedureName,parametersTuple=None,outputValues=None):
         print(f"{Back.LIGHTMAGENTA_EX}invocando el procedimiento {procedureName}{Back.RESET}")
         try:
+            parameterHandler= "%s,"*len(parametersTuple)
+            if outputValues!=None:
+                parameterHandler+=outputValues
+            else:
+                parameterHandler=parameterHandler[:-1]
+
+            # print("call %s(%s)--->",(procedureName,parameterHandler))
             query="call %s(%s)"%(procedureName,parameterHandler)
-            print("query=",query)
-            print("oaran=",parametersTuple)
-            print("===",query%(parametersTuple))
-            self.execute_query(query%(parametersTuple))
+            
+            # print("===",query%(parametersTuple))
+            # self.execute_query(query%(parametersTuple))
+            self.execute_query(query,parametersTuple)
             self.conn.commit()
+
+            if(outputValues):
+                self.execute_query("select %s"%(outputValues))
+                return self.getFetch("one")
 
         except Exception as e:
             print(e)
@@ -295,8 +306,12 @@ class Conexion:
         else:
             print('DB ACTUAL SIN NECESIDAD DE CAMBIOS')
 
-    def getFetch(self):
-        return self.fetch
+    def getFetch(self,rows="all"):
+        if(rows=="all"):
+            return self.cursor.fetchall()
+        if(rows=="one"):
+            return self.cursor.fetchone()
+        return self.cursor.fetchmany(rows)
     
     def reiniciarContatorAuto(self,tabla):
         self.execute_query(f"ALTER TABLE {tabla} AUTO_INCREMENT=0")

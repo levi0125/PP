@@ -4,21 +4,6 @@
     max-width: 100%;
     box-sizing: border-box;
 }
-nav{
-    background-color: rgb(241, 93, 93);
-    height: 6vh;
-    div{
-        display: grid;
-        grid-template-rows: 1fr;
-        grid-template-columns: auto auto auto;
-        justify-content: start;
-        gap: 4vw;
-        padding-left: 5%;
-        a, a:visited{
-            color:white
-        }
-    }
-}
 h1{
     font-size: min(4vw,5vh);
 }
@@ -51,7 +36,7 @@ legend{
     font-weight: bold;
     font-size: min(3vw,4vh);;
 }
-section,input,textarea{
+section,input,textarea,select{
     font-size:min(2vw,3vh);
 }
 p{
